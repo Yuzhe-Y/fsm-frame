@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<launch>
+     <rosparam file="$(fsm_ctrl)/config/comm_node_params.yaml" command="load" />
+
+     <include file="$(find mpcc_ctrl)/launch/px4_estimator.launch">
+     </include>
+     
+     <node pkg="mpcc_ctrl" type="swarm_user_cmd" name="swarm_user_cmd" output="screen"> 
+     </node>
+
+</launch>
