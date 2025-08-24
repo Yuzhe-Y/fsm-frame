@@ -6,6 +6,14 @@ install/
 *.pyc
 .catkin_workspace
 
+# catkin tools
+*.catkin_tools
+logs
+
+# clangd
+.clangd
+compile_commands.json
+
 # ide
 .idea/
 .vscode/
