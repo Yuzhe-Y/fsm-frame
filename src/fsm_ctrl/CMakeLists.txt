@@ -126,6 +126,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include
   ${GSL_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/Libraries/sml/include
 )
 
 ## Declare a C++ library

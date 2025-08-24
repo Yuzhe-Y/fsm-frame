@@ -1,0 +1,3 @@
+[submodule "src/fsm_ctrl/Libraries/sml"]
+	path = src/fsm_ctrl/Libraries/sml
+	url = https://github.com/boost-ext/sml.git

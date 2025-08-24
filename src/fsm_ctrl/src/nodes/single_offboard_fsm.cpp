@@ -6,6 +6,9 @@
  * @date    2024-06-03
  */
 
+// !!!这个头文件一定放在最前面!!!
+#include "boost/sml.hpp"
+
 #include "fsm_ctrl/nodes/single_offboard_fsm.hpp"
 
 using namespace std;
