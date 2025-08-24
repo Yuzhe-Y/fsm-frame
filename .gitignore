@@ -1,7 +1,14 @@
+# ros
 build/
 devel/
 install/
 *.log
 *.pyc
+.catkin_workspace
+
+# ide
 .idea/
 .vscode/
+
+# mac
+.DS_Store
