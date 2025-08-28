@@ -14,6 +14,7 @@ public:
   std::string name_;
   Status status_;
   ros::Publisher pub_status_;
+  ros::Publisher pub_ctrl_;
   std::function<void()> prepareFunc_;
   std::function<void()> runFunc_;
   std::function<void()> stopFunc_;
@@ -26,7 +27,6 @@ public:
     ros::NodeHandle nh;
     auto pub_name = "state/" + name_;
     pub_status_ = nh.advertise<wl_sm_msgs::status>(pub_name, 10);
-
     state_sub_ = nh.subscribe<wl_sm_msgs::state>("/state_machine/state", 10,
                                                  &State::callback, this);
   }

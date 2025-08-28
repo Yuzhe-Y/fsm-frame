@@ -12,6 +12,7 @@
 #include <nlohmann/json.hpp>
 #include <unordered_map>
 #include <vector>
+#include <mavros_msgs/PositionTarget.h>
 
 namespace wl {
 

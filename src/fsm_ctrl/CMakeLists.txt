@@ -209,6 +209,17 @@ target_link_libraries(automatic_node ${catkin_LIBRARIES} boost_system boost_file
 add_executable(manual_node src/nodes/manual_node.cpp)
 target_link_libraries(manual_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
 
+
+function (add_state name)
+  add_executable(state_${name} src/states/${name}.cpp)
+  target_link_libraries(state_${name} ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+endfunction()
+
+# add_state(arming)
+  add_executable(state_arming src/states/arming.cpp)
+  target_link_libraries(state_arming ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+
+
 #############
 ## Install ##
 #############

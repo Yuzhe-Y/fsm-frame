@@ -1,16 +1,8 @@
 {
   "states": [
-    {"name": "stopped"},
-    {"name": "manual"},
-    {"name": "automatic"}
+    {"name": "arming"}
   ],
-  "events": [{"name": "start"}, {"name": "stop"}, {"name": "auto_ctrl"}, {"name": "manual_ctrl"}],
-  "transitions": [
-    {"from": "stopped", "event": "start", "to": "automatic"},
-    {"from": "manual", "event": "stop", "to": "stopped"},
-    {"from": "automatic", "event": "stop", "to": "stopped"},
-    {"from": "manual", "event": "auto_ctrl", "to": "automatic"},
-    {"from": "automatic", "event": "manual_ctrl", "to": "manual"}
-  ],
-  "initial_state": "Stopped"
+  "events": [],
+  "transitions": [],
+  "initial_state": "arming"
 }
