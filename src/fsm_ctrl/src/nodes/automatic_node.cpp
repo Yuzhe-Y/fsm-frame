@@ -1,27 +1,43 @@
 #include "ros/ros.h"
+#include <bits/stdint-uintn.h>
+#include <unistd.h>
 #include <wl_sm/state_machine.hpp>
 
-int main(int argc, char **argv)
-{
+uint64_t running_time = 0;
 
-    using namespace wl;
-    ros::init(argc, argv, "automatic_node");
-    ros::NodeHandle nh;
+void prepare() {
+  ROS_INFO("automatic preparing");
+  running_time = 0;
+  sleep(1);
+}
 
-    State automatic_state("automatic");
+void run() {
+  ROS_INFO("automatic running");
+  ++running_time;
+  ROS_INFO("running time: %ld s", running_time);
+}
 
-    ros::Rate loop_rate(1000);
+void stop() {
+  ROS_INFO("automatic stopping");
+  sleep(1);
+}
+int main(int argc, char **argv) {
 
-    while (ros::ok())
-    {
-        if (automatic_state.status_ == Status::kRunning)
-        {
-            automatic_state.run();
-        }
-        automatic_state.publishStatus();
-        ros::spinOnce();
-        loop_rate.sleep(); 
-    }
+  using namespace wl;
+  ros::init(argc, argv, "automatic_node");
+  ros::NodeHandle nh;
 
-    return 0;
+  State automatic_state("automatic", prepare, run, stop);
+
+  ros::Rate loop_rate(100);
+
+  automatic_state.prepare();
+
+  while (ros::ok()) {
+    automatic_state.run();
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
+  return 0;
 }

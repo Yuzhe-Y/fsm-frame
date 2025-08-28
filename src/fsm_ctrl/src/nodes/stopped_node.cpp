@@ -1,27 +1,39 @@
 #include "ros/ros.h"
 #include <wl_sm/state_machine.hpp>
 
+uint64_t running_time = 0;
 
-int main(int argc, char **argv)
-{
+void prepare() {
+  ROS_INFO("stopped preparing");
+  running_time = 0;
+  sleep(1);
+}
 
-    using namespace wl;
-    ros::init(argc, argv, "stopped_node");
-    ros::NodeHandle nh;
+void run() {
+  ROS_INFO("stopped running");
+  ++running_time;
+  ROS_INFO("running time: %ld s", running_time);
+}
 
-    State Stopped_state("stopped");
-    ros::Rate loop_rate(1000);
+void stop() {
+  ROS_INFO("stopped stopping");
+  sleep(1);
+}
 
-    while (ros::ok())
-    {
-        if (Stopped_state.status_ == Status::kRunning)
-        {
-            Stopped_state.run();
-        }
-        Stopped_state.publishStatus();
-        ros::spinOnce();
-        loop_rate.sleep(); 
-    }
+int main(int argc, char **argv) {
 
-    return 0;
+  using namespace wl;
+  ros::init(argc, argv, "stopped_node");
+  ros::NodeHandle nh;
+
+  State stopped_state("stopped", prepare, run, stop);
+  ros::Rate loop_rate(100);
+  stopped_state.prepare();
+  while (ros::ok()) {
+    stopped_state.run();
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
+  return 0;
 }

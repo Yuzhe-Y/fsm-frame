@@ -19,7 +19,7 @@ class _State {
 public:
   std::string name_;
   int id_;
-  Status status_{Status::kHalt};
+  Status status_{Status::kPreparing};
 
 private:
   ros::Subscriber sub_status_;
@@ -35,7 +35,7 @@ public:
   void callback(const wl_sm_msgs::status::ConstPtr &msg) {
     switch (msg->status_id) {
     case -1:
-      status_ = Status::kHalt;
+      status_ = Status::kPreparing;
       break;
     case 0:
       status_ = Status::kReady;
@@ -43,7 +43,7 @@ public:
     case 1:
       status_ = Status::kRunning;
       break;
-    case 2:
+    default:
       status_ = Status::kPreparing;
       break;
     }

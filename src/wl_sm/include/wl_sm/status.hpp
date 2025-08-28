@@ -3,18 +3,15 @@ namespace wl
 {
 enum class Status : int
 {
-  kHalt = -1,
+  kPreparing = -1,
   kReady = 0,
-  kRunning = 1,
-  kPreparing = 2
+  kRunning = 1
 };
 
 constexpr const char* StatusToString(Status status)
 {
   switch (status)
   {
-    case Status::kHalt:
-      return "Halt";
     case Status::kReady:
       return "Ready";
     case Status::kRunning:

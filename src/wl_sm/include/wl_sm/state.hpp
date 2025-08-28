@@ -14,30 +14,25 @@ public:
   std::string name_;
   Status status_;
   ros::Publisher pub_status_;
-  State(std::string name) : name_(name) {
-    status_ = Status::kHalt;
+  std::function<void()> prepareFunc_;
+  std::function<void()> runFunc_;
+  std::function<void()> stopFunc_;
+
+  State(std::string name, std::function<void()> prepareFunc,
+        std::function<void()> runFunc, std::function<void()> stopFunc)
+      : name_(name), prepareFunc_(prepareFunc), runFunc_(runFunc),
+        stopFunc_(stopFunc) {
+    status_ = Status::kPreparing;
     ros::NodeHandle nh;
     auto pub_name = "state/" + name_;
     pub_status_ = nh.advertise<wl_sm_msgs::status>(pub_name, 10);
 
     state_sub_ = nh.subscribe<wl_sm_msgs::state>("/state_machine/state", 10,
-                                                &State::callback, this);
-  }
-
-  State(std::string name, Status status) : name_(name), status_(status) {
-    ros::NodeHandle nh;
-    auto pub_name = "state/" + name_;
-    pub_status_ = nh.advertise<wl_sm_msgs::status>(pub_name, 10);
-
-    state_sub_ = nh.subscribe<wl_sm_msgs::state>("/state_machine/state", 10,
-                                                &State::callback, this);
+                                                 &State::callback, this);
   }
 
   void callback(const wl_sm_msgs::state::ConstPtr &msg) {
     switch (status_) {
-    case Status::kHalt:
-      init();
-      break;
     case Status::kReady:
       if (msg->current_name == name_) {
         status_ = Status::kRunning;
@@ -55,22 +50,41 @@ public:
     }
   }
 
-  void init() {
-    ROS_INFO("State %s: Initing", name_.c_str());
-    status_ = Status::kReady;
-  }
+  // 只能在preparing时调用,结束才进入ready
   void prepare() {
-    status_ = Status::kPreparing;
-    ROS_INFO("State %s: Preparing", name_.c_str());
+    if (status_ != Status::kPreparing) {
+      return;
+    }
+    if (prepareFunc_ == nullptr) {
+      status_ = Status::kReady;
+      return;
+    }
+    prepareFunc_();
     status_ = Status::kReady;
-    ROS_INFO("State %s: Ready", name_.c_str());
-  }
-  void run() { ROS_INFO("State %s: Running", name_.c_str()); }
-  void stop() {
-    status_ = Status::kPreparing;
-    ROS_INFO("State %s: Stopping", name_.c_str());
   }
 
+  //只能在running时调用,调用立马进入preparing状态
+  void stop() {
+    if (status_ != Status::kRunning) {
+      return;
+    }
+    status_ = Status::kPreparing;
+    if (stopFunc_ == nullptr) {
+      return;
+    }
+    stopFunc_();
+  }
+
+  // 只能在running时调用
+  void run(){
+    publishStatus();
+    if(status_ != Status::kRunning){
+      return;
+    }
+    runFunc_();
+  }
+
+  private:
   void publishStatus() {
     wl_sm_msgs::status msg;
     msg.status = StatusToString(status_);
@@ -78,7 +92,7 @@ public:
     pub_status_.publish(msg);
   }
 
-private:
+
   ros::Subscriber state_sub_;
 };
 } // namespace wl
