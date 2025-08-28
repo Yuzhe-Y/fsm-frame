@@ -6,14 +6,10 @@ int main(int argc, char **argv)
 {
 
     using namespace wl;
-    using State=State<ros::Publisher>;
     ros::init(argc, argv, "stopped_node");
     ros::NodeHandle nh;
 
-    State Stopped_state("stopped", Status::kHalt);
-
-    ros::Subscriber sub = nh.subscribe<wl_sm_msgs::state>("state_machine/state", 10, &State::callback, &Stopped_state);
-
+    State Stopped_state("stopped");
     ros::Rate loop_rate(1000);
 
     while (ros::ok())

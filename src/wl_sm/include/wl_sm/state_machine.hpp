@@ -1,26 +1,61 @@
 #pragma once
-#include "./state.hpp"
 #include "./event.hpp"
+#include "./state.hpp"
 #include "ros/forwards.h"
 #include "ros/publisher.h"
 #include "ros/subscriber.h"
-#include <vector>
-#include <unordered_map>
-#include <iostream>
-#include <fstream>
-#include <nlohmann/json.hpp>
 #include "wl_sm_msgs/event.h"
+#include "wl_sm_msgs/status.h"
+#include "wl_sm_msgs/state.h"
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include <unordered_map>
+#include <vector>
 
-namespace wl
-{
-class StateMachine
-{
- private:
-  using StateType = State<ros::Subscriber>;
+namespace wl {
+
+class _State {
+public:
+  std::string name_;
+  int id_;
+  Status status_{Status::kHalt};
+
+private:
+  ros::Subscriber sub_status_;
+
+public:
+  _State(std::string name, int id) : name_(name), id_(id) {}
+  void init() {
+    ros::NodeHandle nh;
+    auto sub_name = "state/" + name_;
+    sub_status_ =
+        nh.subscribe<wl_sm_msgs::status>(sub_name, 10, &_State::callback, this);
+  }
+  void callback(const wl_sm_msgs::status::ConstPtr &msg) {
+    switch (msg->status_id) {
+    case -1:
+      status_ = Status::kHalt;
+      break;
+    case 0:
+      status_ = Status::kReady;
+      break;
+    case 1:
+      status_ = Status::kRunning;
+      break;
+    case 2:
+      status_ = Status::kPreparing;
+      break;
+    }
+  }
+};
+
+class StateMachine {
+private:
   ros::Subscriber event_sub_;
 
- public:
-  std::vector<StateType> states_;
+public:
+  std::vector<_State> states_;
   std::unordered_map<std::string, int> state_index_map_;
 
   std::vector<Event> events_;
@@ -28,38 +63,35 @@ class StateMachine
 
   std::vector<std::vector<int>> transition_table_;
 
-  StateType *current_state_ptr_;
-  StateType *next_state_ptr_;
+  _State *current_state_ptr_;
+  _State *next_state_ptr_;
 
- public:
-  StateMachine(std::string json_file)
-  {
+public:
+  StateMachine(std::string json_file) {
     using json = nlohmann::json;
     std::ifstream f(json_file);
     json j;
     f >> j;
     // 1. 状态向量 + 索引映射
     int idx = 0;
-    for (auto &s : j["states"])
-    {
-      states_.push_back(StateType(s["name"], idx));
+    for (auto &s : j["states"]) {
+      states_.push_back(_State(s["name"], idx));
       state_index_map_[s["name"]] = idx++;
     }
 
     // 2. 事件向量 + 索引映射
     idx = 0;
-    for (auto &e : j["events"])
-    {
+    for (auto &e : j["events"]) {
       events_.push_back(Event(e["name"]));
       event_index_map_[e["name"]] = idx++;
     }
 
     // 3. 创建二维数组，初始化为 -1 表示无效转换
-    transition_table_.resize(states_.size(), std::vector<int>(events_.size(), -1));
+    transition_table_.resize(states_.size(),
+                             std::vector<int>(events_.size(), -1));
 
     // 4. 填充转换表
-    for (auto &t : j["transitions"])
-    {
+    for (auto &t : j["transitions"]) {
       int from_idx = state_index_map_[t["from"]];
       int event_idx = event_index_map_[t["event"]];
       int to_idx = state_index_map_[t["to"]];
@@ -72,26 +104,25 @@ class StateMachine
     f.close();
 
     event_sub_ = ros::NodeHandle().subscribe<wl_sm_msgs::event>(
-        "state_machine/event", 10, [this](const wl_sm_msgs::event::ConstPtr &msg) { this->handle_event(msg->name); });
+        "state_machine/event", 10,
+        [this](const wl_sm_msgs::event::ConstPtr &msg) {
+          this->handle_event(msg->name);
+        });
   }
   StateMachine() = delete;
   StateMachine(const StateMachine &) = delete;
   StateMachine &operator=(const StateMachine &) = delete;
 
-  void init()
-  {
+  void init() {
     ros::NodeHandle nh;
     state_pub_ = nh.advertise<wl_sm_msgs::state>("/state_machine/state", 10);
-    for (auto &s : states_)
-    {
+    for (auto &s : states_) {
       s.init();
     }
   }
 
-  void handle_event(const std::string &event_name)
-  {
-    if (event_index_map_.find(event_name) == event_index_map_.end())
-    {
+  void handle_event(const std::string &event_name) {
+    if (event_index_map_.find(event_name) == event_index_map_.end()) {
       std::cout << "Unknown event: " << event_name << std::endl;
       return;
     }
@@ -99,26 +130,22 @@ class StateMachine
     int e_idx = event_index_map_[event_name];
     std::cout << "handle event: " << event_name << std::endl;
     int next_state_index = transition_table_[current_state_ptr_->id_][e_idx];
-    if (next_state_index != -1)
-    {
-      // std::cout << states_[current_state_] << " --(" << event_name << ")--> " << states_[next_state] << std::endl;
+    if (next_state_index != -1) {
+      // std::cout << states_[current_state_] << " --(" << event_name << ")--> "
+      // << states_[next_state] << std::endl;
       next_state_ptr_ = &states_.at(next_state_index);
-    }
-    else
-    {
-      // std::cout << "No transition from " << states_[current_state_] << " on event " << event_name << std::endl;
+    } else {
+      // std::cout << "No transition from " << states_[current_state_] << " on
+      // event " << event_name << std::endl;
     }
   }
 
-  void checkReady()
-  {
+  void checkReady() {
     // do something
-    if (current_state_ptr_ == next_state_ptr_)
-    {
+    if (current_state_ptr_ == next_state_ptr_) {
       return;
     }
-    if (next_state_ptr_->status_ != Status::kReady)
-    {
+    if (next_state_ptr_->status_ != Status::kReady) {
       std::cout << "not ready" << std::endl;
       return;
     }
@@ -127,40 +154,34 @@ class StateMachine
   }
 
   template <typename... Args>
-  void checkReady(std::function<bool(Args...)> condition)
-  {
-    if (condition == nullptr)
-    {
+  void checkReady(std::function<bool(Args...)> condition) {
+    if (condition == nullptr) {
       std::cout << "condition is null" << std::endl;
       return;
     }
-    if (condition())
-    {
+    if (condition()) {
       std::cout << "check if ready" << std::endl;
       current_state_ptr_ = next_state_ptr_;
-    }
-    else
-    {
+    } else {
       std::cout << "not ready" << std::endl;
     }
   }
   auto getCurrentStateName() const { return current_state_ptr_->name_; }
   auto getNextStateName() const { return next_state_ptr_->name_; }
-  void printState()
-  {
+  void printState() {
     std::cout << "current state: " << getCurrentStateName() << std::endl;
     std::cout << "next state: " << getNextStateName() << std::endl;
   }
 
-  private:
+private:
   ros::Publisher state_pub_;
-  public:
-  void publishState()
-  {
+
+public:
+  void publishState() {
     wl_sm_msgs::state msg;
     msg.current_name = getCurrentStateName();
     msg.next_name = getNextStateName();
     state_pub_.publish(msg);
   }
 };
-}  // namespace wl
+} // namespace wl

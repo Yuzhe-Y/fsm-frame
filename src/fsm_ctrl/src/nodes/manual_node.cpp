@@ -5,13 +5,10 @@ int main(int argc, char **argv)
 {
 
     using namespace wl;
-    using State=State<ros::Publisher>;
     ros::init(argc, argv, "manual_node");
     ros::NodeHandle nh;
 
-    State manual_state("manual", Status::kHalt);
-
-    ros::Subscriber sub = nh.subscribe<wl_sm_msgs::state>("state_machine/state", 10, &State::callback, &manual_state);
+    State manual_state("manual");
 
     ros::Rate loop_rate(1000);
 
