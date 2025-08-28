@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="fsm_ctrl" type="state_machine" name="state_machine" output="screen"/>
+	<node pkg="fsm_ctrl" type="stopped_node" name="stopped_node" output="screen"/>
+	<node pkg="fsm_ctrl" type="automatic_node" name="automatic_node" output="screen"/>
+	<node pkg="fsm_ctrl" type="manual_node" name="manual_node" output="screen"/>
+
+</launch>

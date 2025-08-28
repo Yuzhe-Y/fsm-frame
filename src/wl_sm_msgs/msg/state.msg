@@ -1,0 +1,2 @@
+string current_name
+string next_name

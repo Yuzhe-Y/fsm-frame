@@ -5,9 +5,9 @@
 #include "ros/publisher.h"
 #include "ros/ros.h"
 #include "ros/subscriber.h"
-#include "state_msgs/state.h"
-#include "state_msgs/status.h"
-#include "state_msgs/event.h"
+#include "wl_sm_msgs/state.h"
+#include "wl_sm_msgs/status.h"
+#include "wl_sm_msgs/event.h"
 namespace wl
 {
 template <typename T>
@@ -24,10 +24,10 @@ class State<ros::Publisher>
   {
     ros::NodeHandle nh;
     auto pub_name = "state/" + name_;
-    pub_status_ = nh.advertise<state_msgs::status>(pub_name, 10);
+    pub_status_ = nh.advertise<wl_sm_msgs::status>(pub_name, 10);
   }
 
-  void callback(const state_msgs::state::ConstPtr& msg)
+  void callback(const wl_sm_msgs::state::ConstPtr& msg)
   {
     switch (status_)
     {
@@ -74,7 +74,7 @@ class State<ros::Publisher>
 
   void publishStatus()
   {
-    state_msgs::status msg;
+    wl_sm_msgs::status msg;
     msg.status = StatusToString(status_);
     msg.status_id = static_cast<int>(status_);
     pub_status_.publish(msg);
@@ -98,9 +98,9 @@ class State<ros::Subscriber>
   {
     ros::NodeHandle nh;
     auto sub_name = "state/" + name_;
-    sub_status_ = nh.subscribe<state_msgs::status>(sub_name, 10, &State::callback, this);
+    sub_status_ = nh.subscribe<wl_sm_msgs::status>(sub_name, 10, &State::callback, this);
   }
-  void callback(const state_msgs::status::ConstPtr& msg)
+  void callback(const wl_sm_msgs::status::ConstPtr& msg)
   {
     switch (msg->status_id)
     {

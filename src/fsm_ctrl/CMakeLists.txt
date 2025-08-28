@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
+  wl_sm
 )
 
 find_package(Eigen3 REQUIRED)
@@ -195,6 +196,18 @@ add_executable(single_offboard_fsm src/nodes/single_offboard_fsm.cpp)
 target_link_libraries(single_offboard_fsm NmpcCtrl ExtOdomCb MavCb CommUtils MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
 
 target_link_libraries(single_offboard_fsm /usr/local/lib/libcasadi.so.3.7)
+
+add_executable(state_machine src/nodes/state_machine.cpp)
+target_link_libraries(state_machine ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+
+add_executable(stopped_node src/nodes/stopped_node.cpp)
+target_link_libraries(stopped_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+
+add_executable(automatic_node src/nodes/automatic_node.cpp)
+target_link_libraries(automatic_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+
+add_executable(manual_node src/nodes/manual_node.cpp)
+target_link_libraries(manual_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
 
 #############
 ## Install ##

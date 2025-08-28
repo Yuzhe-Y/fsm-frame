@@ -1,13 +1,15 @@
 #pragma once
 #include "./state.hpp"
 #include "./event.hpp"
+#include "ros/forwards.h"
+#include "ros/publisher.h"
 #include "ros/subscriber.h"
 #include <vector>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "state_msgs/event.h"
+#include "wl_sm_msgs/event.h"
 
 namespace wl
 {
@@ -69,8 +71,8 @@ class StateMachine
     next_state_ptr_ = current_state_ptr_;
     f.close();
 
-    event_sub_ = ros::NodeHandle().subscribe<state_msgs::event>(
-        "state_machine/event", 10, [this](const state_msgs::event::ConstPtr &msg) { this->handle_event(msg->name); });
+    event_sub_ = ros::NodeHandle().subscribe<wl_sm_msgs::event>(
+        "state_machine/event", 10, [this](const wl_sm_msgs::event::ConstPtr &msg) { this->handle_event(msg->name); });
   }
   StateMachine() = delete;
   StateMachine(const StateMachine &) = delete;
@@ -78,6 +80,8 @@ class StateMachine
 
   void init()
   {
+    ros::NodeHandle nh;
+    state_pub_ = nh.advertise<wl_sm_msgs::state>("/state_machine/state", 10);
     for (auto &s : states_)
     {
       s.init();
@@ -146,6 +150,17 @@ class StateMachine
   {
     std::cout << "current state: " << getCurrentStateName() << std::endl;
     std::cout << "next state: " << getNextStateName() << std::endl;
+  }
+
+  private:
+  ros::Publisher state_pub_;
+  public:
+  void publishState()
+  {
+    wl_sm_msgs::state msg;
+    msg.current_name = getCurrentStateName();
+    msg.next_name = getNextStateName();
+    state_pub_.publish(msg);
   }
 };
 }  // namespace wl

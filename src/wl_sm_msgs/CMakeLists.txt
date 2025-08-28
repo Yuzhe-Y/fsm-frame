@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(wl_sm)
+project(wl_sm_msgs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  wl_sm_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -47,13 +47,13 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-# # Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   event.msg
-#   state.msg
-#   status.msg
-# )
+# Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  event.msg
+  state.msg
+  status.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,15 +69,10 @@ find_package(catkin REQUIRED COMPONENTS
 #   Action2.action
 # )
 
-# # Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
-
-add_library(nlohmann-json INTERFACE)
-target_include_directories(nlohmann-json INTERFACE
-  ${CMAKE_CURRENT_LIST_DIR}/libraries/json/include
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs
 )
 
 ################################################
@@ -110,10 +105,10 @@ target_include_directories(nlohmann-json INTERFACE
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES wl_sm
- CATKIN_DEPENDS roscpp rospy std_msgs wl_sm_msgs
- DEPENDS
+#  INCLUDE_DIRS include
+#  LIBRARIES wl_sm_msgs
+ CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+#  DEPENDS system_lib
 )
 
 ###########
@@ -123,20 +118,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+# include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(wl_sm INTERFACE)
-target_include_directories(wl_sm INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-target_link_libraries(wl_sm INTERFACE nlohmann-json ${catkin_LIBRARIES})
-
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/wl_sm.cpp
+#   src/${PROJECT_NAME}/wl_sm_msgs.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -147,7 +135,7 @@ target_link_libraries(wl_sm INTERFACE nlohmann-json ${catkin_LIBRARIES})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/wl_sm_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/wl_sm_msgs_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -202,7 +190,7 @@ target_link_libraries(wl_sm INTERFACE nlohmann-json ${catkin_LIBRARIES})
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1
-#   # myfile2src/fsm_ctrl/Libraries/json
+#   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
@@ -211,7 +199,7 @@ target_link_libraries(wl_sm INTERFACE nlohmann-json ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_wl_sm.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_wl_sm_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
