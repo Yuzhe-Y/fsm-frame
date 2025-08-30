@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ros_publisher_client</name>
+    <version>1.4.16</version>
+  <description>The ros_publisher_client package</description>
+
+
+  <maintainer email="pablo@ibrobotics.com">Pablo Inigo Blasco</maintainer>
+
+
+
+  <license>BSD-3</license>
+
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/ros_publisher_client</url> -->
+
+
+
+
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>smacc</depend>
+
+
+  <export>
+
+
+  </export>
+</package>

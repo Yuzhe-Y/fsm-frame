@@ -132,9 +132,11 @@ public:
     std::cout << "handle event: " << event_name << std::endl;
     int next_state_index = transition_table_[current_state_ptr_->id_][e_idx];
     if (next_state_index != -1) {
-      // std::cout << states_[current_state_] << " --(" << event_name << ")--> "
-      // << states_[next_state] << std::endl;
       next_state_ptr_ = &states_.at(next_state_index);
+      std::cout << current_state_ptr_->name_ << " --(" << event_name << ")--> "
+      << next_state_ptr_->name_ << std::endl;
+
+      printState();
     } else {
       // std::cout << "No transition from " << states_[current_state_] << " on
       // event " << event_name << std::endl;
@@ -152,26 +154,39 @@ public:
     }
     std::cout << "ready" << std::endl;
     current_state_ptr_ = next_state_ptr_;
+    printState();
   }
 
-  template <typename... Args>
-  void checkReady(std::function<bool(Args...)> condition) {
-    if (condition == nullptr) {
-      std::cout << "condition is null" << std::endl;
-      return;
-    }
-    if (condition()) {
-      std::cout << "check if ready" << std::endl;
-      current_state_ptr_ = next_state_ptr_;
-    } else {
-      std::cout << "not ready" << std::endl;
-    }
-  }
+  // template <typename... Args>
+  // void checkReady(std::function<bool(Args...)> condition) {
+  //   if (condition == nullptr) {
+  //     std::cout << "condition is null" << std::endl;
+  //     return;
+  //   }
+  //   if (condition()) {
+  //     std::cout << "check if ready" << std::endl;
+  //     current_state_ptr_ = next_state_ptr_;
+  //   } else {
+  //     std::cout << "not ready" << std::endl;
+  //   }
+  // }
   auto getCurrentStateName() const { return current_state_ptr_->name_; }
   auto getNextStateName() const { return next_state_ptr_->name_; }
   void printState() {
     std::cout << "current state: " << getCurrentStateName() << std::endl;
     std::cout << "next state: " << getNextStateName() << std::endl;
+  }
+  void waitForState() {
+    auto rate = ros::Rate(10);
+    while(ros::ok() &&
+          current_state_ptr_->status_ != Status::kRunning) {
+      publishState();
+      ros::spinOnce();
+      rate.sleep();
+    }
+    current_state_ptr_ = &states_.front();
+    next_state_ptr_ = current_state_ptr_;
+    printState();
   }
 
 private:

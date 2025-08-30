@@ -8,11 +8,13 @@
 #include "wl_sm_msgs/state.h"
 #include "wl_sm_msgs/status.h"
 #include <cstring>
+#include <iostream>
 namespace wl {
 class State {
 public:
   std::string name_;
   Status status_;
+  Status last_status_;
   ros::Publisher pub_status_;
   ros::Publisher pub_ctrl_;
   std::function<void()> prepareFunc_;
@@ -24,6 +26,7 @@ public:
       : name_(name), prepareFunc_(prepareFunc), runFunc_(runFunc),
         stopFunc_(stopFunc) {
     status_ = Status::kPreparing;
+    last_status_ = Status::kPreparing;
     ros::NodeHandle nh;
     auto pub_name = "state/" + name_;
     pub_status_ = nh.advertise<wl_sm_msgs::status>(pub_name, 10);
@@ -35,11 +38,13 @@ public:
     switch (status_) {
     case Status::kReady:
       if (msg->current_name == name_) {
+        std::cout << name_ << ": " << "Transitioning to running state" << std::endl;
         status_ = Status::kRunning;
       }
       break;
     case Status::kRunning:
       if (msg->current_name != name_) {
+        std::cout << name_ << ": " << "Transitioning to preparing state" << std::endl;
         status_ = Status::kPreparing;
         stop();
         prepare();
@@ -86,10 +91,15 @@ public:
 
   private:
   void publishStatus() {
+    if(last_status_ == status_){
+      return;
+    }
+    std::cout <<name_<<":"<< "Publishing status: " << StatusToString(status_) << std::endl;
     wl_sm_msgs::status msg;
     msg.status = StatusToString(status_);
     msg.status_id = static_cast<int>(status_);
     pub_status_.publish(msg);
+    last_status_ = status_;
   }
 
 

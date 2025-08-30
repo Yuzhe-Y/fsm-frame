@@ -12,4 +12,5 @@ class Event
   Event(std::string name) : name_(name) {}
 };
 
+
 }  // namespace wl

@@ -1,7 +1,11 @@
 <launch>
+<include file="$(find mavros)/launch/px4.launch">
+    <arg name="fcu_url" value="udp://:14540@127.0.0.1:14557"/>
+</include>
 	<node pkg="fsm_ctrl" type="state_machine" name="state_machine" output="screen"/>
-	<node pkg="fsm_ctrl" type="stopped_node" name="stopped_node" output="screen"/>
-	<node pkg="fsm_ctrl" type="automatic_node" name="automatic_node" output="screen"/>
-	<node pkg="fsm_ctrl" type="manual_node" name="manual_node" output="screen"/>
+	<node pkg="fsm_ctrl" type="state_arming" name="state_arming" output="screen"/>
+	<node pkg="fsm_ctrl" type="state_pos_ctrling" name="state_pos_ctrling" output="screen"/>
+	<node pkg="fsm_ctrl" type="state_return_landing" name="state_return_landing" output="screen"/>
+
 
 </launch>

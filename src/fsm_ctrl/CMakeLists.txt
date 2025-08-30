@@ -210,14 +210,19 @@ add_executable(manual_node src/nodes/manual_node.cpp)
 target_link_libraries(manual_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
 
 
+add_library(wl_utils INTERFACE)
+target_include_directories(wl_utils INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include/fsm_ctrl/utils)
+
 function (add_state name)
   add_executable(state_${name} src/states/${name}.cpp)
-  target_link_libraries(state_${name} ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+  target_link_libraries(state_${name} ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm wl_utils)
 endfunction()
 
-# add_state(arming)
-  add_executable(state_arming src/states/arming.cpp)
-  target_link_libraries(state_arming ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
+add_state(arming)
+add_state(pos_ctrling)
+add_state(return_landing)
+  # add_executable(state_arming src/states/arming.cpp)
+  # target_link_libraries(state_arming ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
 
 
 #############

@@ -13,9 +13,12 @@ int main(int argc, char **argv) {
 
     auto rate = ros::Rate(10);
 
+    state_machine.waitForState();
+
+
     while(ros::ok()){
         state_machine.checkReady();
-        state_machine.publishState();
+        // state_machine.publishState();
         ros::spinOnce();
         rate.sleep();
     }

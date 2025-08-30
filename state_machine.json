@@ -1,8 +1,20 @@
 {
   "states": [
-    {"name": "arming"}
+    {"name": "arming"},
+    {"name": "pos_ctrling"},
+    {"name": "return_landing"}
   ],
-  "events": [],
-  "transitions": [],
+  "events": [
+    {"name": "arm"},
+    {"name": "pos_ctrl"},
+    {"name": "return_land"},
+    {"name": "not_armed"}
+  ],
+  "transitions": [
+    {"from": "arming", "event": "pos_ctrl", "to": "pos_ctrling"},
+    {"from": "pos_ctrling", "event": "return_land", "to": "return_landing"},
+    {"from": "return_landing", "event": "arm", "to": "arming"},
+    {"from": "pos_ctrling", "event": "not_armed", "to": "arming"}
+  ],
   "initial_state": "arming"
 }
