@@ -1,2 +1,0 @@
-string status
-int32 status_id

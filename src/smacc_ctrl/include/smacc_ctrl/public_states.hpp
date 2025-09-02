@@ -4,7 +4,7 @@
 #include <boost/mpl/list.hpp>
 #include "./states/forward_states.hpp"
 #include "./states/events.hpp"
-#include "./orthogonal/or_arm.hpp"
+#include "./orthogonals/or_arm.hpp"
 
 namespace smacc_ctrl {
 
