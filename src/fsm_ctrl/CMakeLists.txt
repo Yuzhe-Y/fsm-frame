@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
-  wl_sm
 )
 
 find_package(Eigen3 REQUIRED)
@@ -78,7 +77,7 @@ find_package(Eigen3 REQUIRED)
 #   geometry_msgs#   mavros_msgs#   nav_msgs#   std_msgs#   visualization_msgs
 # )
 
-generate_messages(DEPENDENCIES std_msgs geometry_msgs)
+#generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -127,7 +126,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include
   ${GSL_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/Lib/json/include
+  ${PROJECT_SOURCE_DIR}/Libraries/sml/include
 )
 
 ## Declare a C++ library
@@ -197,30 +196,6 @@ target_link_libraries(single_offboard_fsm NmpcCtrl ExtOdomCb MavCb CommUtils Mat
 
 target_link_libraries(single_offboard_fsm /usr/local/lib/libcasadi.so.3.7)
 
-add_executable(state_machine src/nodes/state_machine.cpp)
-target_link_libraries(state_machine ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
-
-add_executable(stopped_node src/nodes/stopped_node.cpp)
-target_link_libraries(stopped_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
-
-add_executable(automatic_node src/nodes/automatic_node.cpp)
-target_link_libraries(automatic_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
-
-add_executable(manual_node src/nodes/manual_node.cpp)
-target_link_libraries(manual_node ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
-
-
-add_library(wl_utils INTERFACE)
-target_include_directories(wl_utils INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include/fsm_ctrl/utils)
-
-function (add_state name)
-  add_executable(state_${name} src/states/${name}.cpp)
-  target_link_libraries(state_${name} ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm wl_utils)
-endfunction()
-
-add_state(arming)
-add_state(pos_ctrling)
-add_state(return_landing)
   # add_executable(state_arming src/states/arming.cpp)
   # target_link_libraries(state_arming ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils wl_sm )
 

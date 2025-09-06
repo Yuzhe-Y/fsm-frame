@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>eg_random_generator</name>
+    <version>1.4.16</version>
+  <description>The eg_random_generator package</description>
+
+
+  <maintainer email="pablo@ibrobotics.com">Pablo Iñigo Blasco</maintainer>
+
+
+
+  <license>BSD-3</license>
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/eg_random_generator</url> -->
+
+
+
+
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>catkin</depend>
+  <depend>smacc</depend>
+
+
+
+  <export>
+
+
+  </export>
+</package>

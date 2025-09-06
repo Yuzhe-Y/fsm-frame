@@ -238,7 +238,6 @@ namespace smacc
       this->requiresComponent(behavior);
       globalreference = dynamic_cast<ISmaccClientBehavior *>(behavior);
 
-
       this->setGlobalSMData(stateFieldName, globalreference);
     }
   }
