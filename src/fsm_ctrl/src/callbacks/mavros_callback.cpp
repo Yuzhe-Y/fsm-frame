@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 21
+ * @LastEditTime: 2025-09-24 21
  * @FilePath: /fsm_ctrl/src/callbacks/mavros_callback.cpp
  * @Description: 
  * 
@@ -73,7 +73,7 @@ namespace fsm_cb
             mavros_fcu_quat = mavros_fcu_quat * Eigen::Quaterniond(-1.0, 0.0, 0.0, 0.0);
         }
 
-        mavros_fcu_euler = QuatToEuler(mavros_fcu_quat);
+        mavros_fcu_euler = fsm_ut::QuatToEuler(mavros_fcu_quat);
     }
 
     /**

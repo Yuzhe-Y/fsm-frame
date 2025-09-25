@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 21
+ * @LastEditTime: 2025-09-24 21
  * @FilePath: /fsm_ctrl/src/callbacks/external_odom_callback.cpp
  * @Description: 
  * 
@@ -54,7 +54,7 @@ namespace fsm_cb
             Eigen::Quaterniond quat_raw = Eigen::Quaterniond(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
             mocap_pos = mocap_quat_init.inverse()*(pos_raw - mocap_pos_init);
             mocap_quat = mocap_quat_init.inverse()*quat_raw;
-            mocap_euler = QuatToEuler(mocap_quat);
+            mocap_euler = fsm_ut::QuatToEuler(mocap_quat);
             is_source_new = true;
         }
     
@@ -71,7 +71,7 @@ namespace fsm_cb
             Eigen::Quaterniond quat_raw = Eigen::Quaterniond(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.z, msg->pose.orientation.y);
             mocap_pos = mocap_quat_init.inverse()*(pos_raw - mocap_pos_init);
             mocap_quat = mocap_quat_init.inverse()*quat_raw;
-            mocap_euler = QuatToEuler(mocap_quat);
+            mocap_euler = fsm_ut::QuatToEuler(mocap_quat);
             is_source_new = true;
         }
     
@@ -94,7 +94,7 @@ namespace fsm_cb
         lidar_pos = Eigen::Vector3d(msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z);
         lidar_vel = Eigen::Vector3d(msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z);
         lidar_quat = Eigen::Quaterniond(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
-        lidar_euler = QuatToEuler(lidar_quat);
+        lidar_euler = fsm_ut::QuatToEuler(lidar_quat);
         is_source_new = true;
     }
 
@@ -109,7 +109,7 @@ namespace fsm_cb
         camera_pos = Eigen::Vector3d(msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z);
         camera_vel = Eigen::Vector3d(msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z);
         camera_quat = Eigen::Quaterniond(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
-        camera_euler = QuatToEuler(camera_quat);
+        camera_euler = fsm_ut::QuatToEuler(camera_quat);
         is_source_new = true;
     }
 }

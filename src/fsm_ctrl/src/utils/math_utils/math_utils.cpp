@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 17
+ * @LastEditTime: 2025-09-24 21
  * @FilePath: /fsm_ctrl/src/utils/math_utils/math_utils.cpp
  * @Description: 
  * 
@@ -9,6 +9,8 @@
  */
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 
+namespace fsm_ut
+{
 
 /**
  * @brief  convert quaternion to euler angle
@@ -201,7 +203,7 @@ void ThrustEst::Set_Estor(double _ctrl_interv, double _hover_thrust)
 {
     ctrl_interv = _ctrl_interv;
     hover_thrust = _hover_thrust;
-    thrust_to_force = GRAV/_hover_thrust;
+    thrust_to_force = const_params::GRAVITY/_hover_thrust;
 }
 
 
@@ -487,3 +489,4 @@ std::array<double, 4> reverseTransformSpline(const std::array<double, 4>& b, dou
     return a;
 }
 
+} // namespace fsm_ut

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 20
+ * @LastEditTime: 2025-09-24 19
  * @FilePath: /fsm_ctrl/src/utils/communication_utils/px4_command.cpp
  * @Description: 
  * 
@@ -9,6 +9,9 @@
  */
 
 #include "fsm_ctrl/utils/communication_utils/px4_command.hpp"
+
+namespace fsm_ut
+{
 
 /**
  * @description: Set px4 target position and yaw command
@@ -218,3 +221,5 @@ void CheckAndSwitchToOffboardAndArm(const mavros_msgs::State& current_state,
         }
     }
 }
+
+} // namespace fsm_ut

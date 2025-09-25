@@ -10,9 +10,7 @@
 
 using namespace std;
  
-#define RATE 50.0
-#define INTERV 1.0/RATE
-#define HEIGHT 1.0 
+
  
 bool is_udp_enable = true;         //是否可以进行进程间通信
 
@@ -22,27 +20,19 @@ int last_cmd = 0;                                //上一次输入命令
 ros::Time last_request;           //主程序开始时间
 
 /*--------------------------- ROS ---------------------------*/
-/*--------- Publisher ---------*/
-ros::Publisher local_pos_pub;
-ros::Publisher local_vel_pub;
-ros::Publisher local_target_pub;
-ros::Publisher local_attitude_pub;
-/*--------- Subscriber ---------*/
-ros::Subscriber state_sub;
-ros::Subscriber voltage_sub;
-ros::Subscriber position_sub;
-ros::Subscriber vel_sub;
-ros::Subscriber imu_sub;
-ros::Subscriber rc_sub;
-
-/*--------- Client ---------*/
-ros::ServiceClient arming_client;
-ros::ServiceClient set_mode_client;
+ros::Publisher setpoint_pos_pub;
+ros::Publisher setpoint_vel_pub;
+ros::Publisher setpoint_raw_local_pub;
+ros::Publisher setpoint_raw_att_pub;
 
 mavros_msgs::SetMode offboard_mode;
 mavros_msgs::SetMode land_mode;
 mavros_msgs::SetMode mode_cmd;
 mavros_msgs::CommandBool arm_cmd, disarm_cmd;
+
+fsm_ut::Controller controller; //控制器对象
+NMPC_Ctrller_simple nmpc_controller_w_and_totalF; // w and totalF controller
+const_params::Nmpc_Params nmpc_params;
 
 
 /*--------------------------- CMD Listener ---------------------------*/
@@ -118,29 +108,80 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     /*--------- Publisher ---------*/
-    ros::Publisher setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
+    setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
         ("/mavros/setpoint_position/local", 10);
-    ros::Publisher setpoint_vel_pub = nh.advertise<geometry_msgs::TwistStamped>
+    setpoint_vel_pub = nh.advertise<geometry_msgs::TwistStamped>
         ("/mavros/setpoint_velocity/cmd_vel", 10);
-    ros::Publisher setpoint_raw_local_pub = nh.advertise<mavros_msgs::PositionTarget>
+    setpoint_raw_local_pub = nh.advertise<mavros_msgs::PositionTarget>
         ("/mavros/setpoint_raw/local", 10);
-    ros::Publisher setpoint_raw_att_pub = nh.advertise<mavros_msgs::AttitudeTarget>
+    setpoint_raw_att_pub = nh.advertise<mavros_msgs::AttitudeTarget>
         ("/mavros/setpoint_raw/attitude", 10);
 
-    /*--------- Subscriber ---------*/
-    ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-        ("/mavros/state", 10, fsm_cb::MavrosStateCallback);
-    ros::Subscriber battery_sub = nh.subscribe<sensor_msgs::BatteryState>
-        ("/mavros/battery", 10, fsm_cb::MavrosBatteryCallback);
-    ros::Subscriber pos_sub = nh.subscribe<geometry_msgs::PoseStamped>
-        ("/mavros/local_position/pose", 10, fsm_cb::MavrosFcuPoseCallback);
-    ros::Subscriber vel_sub = nh.subscribe<geometry_msgs::TwistStamped>
-        ("/mavros/local_position/velocity_local", 10, fsm_cb::MavrosFcuVelCallback);
-    ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>
-        ("/mavros/imu/data", 3, fsm_cb::MavrosImuCallback);
-    ros::Subscriber rc_sub = nh.subscribe<mavros_msgs::RCIn>
-        ("/mavros/rc/in", 10, fsm_cb::MavrosRcCallback);
+    /*--------- Timer&&Controller_utils ---------*/
+    nh.param("use_defalut_controller", controller.use_defalut_controller, true);
+    nh.param("defalut_controller_type", controller.defalut_controller_type, 0);
+    nh.param("nmpc_controller_type", controller.nmpc_controller_type, 0);
 
+    ros::Timer controller_timer;
+    if(controller.use_defalut_controller)
+    {
+        if(controller.defalut_controller_type == 0) // NMPC(ACADOS)
+        {
+            if(controller.nmpc_controller_type == 0) // w_and_totalF
+            {
+                nmpc_params = const_params::W_TOTALF_PARAMS;
+                // controller_timer = nh.createTimer(ros::Duration(0.01), fsm_cb::AcadosNmpcSimpleModelTimerCallback);
+            }
+            else if(controller.nmpc_controller_type == 1) // Force
+            {
+
+            }
+            else if(controller.nmpc_controller_type == 2) // dForce
+            {
+                
+            }
+            else
+            {
+                ROS_ERROR("Invalid nmpc_controller_type: %d", controller.nmpc_controller_type);
+                return -1;
+            }
+        }
+        else if(controller.defalut_controller_type == 1) // velocity
+        {
+            if(controller.nmpc_controller_type == 0) // w_and_totalF
+            {
+                fsm_ut::IpoptNmpcWandTotalFControllerInit(nh, nmpc_controller_w_and_totalF);
+                controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+            }
+            else if(controller.nmpc_controller_type == 1) // Force
+            {
+
+            }
+            else if(controller.nmpc_controller_type == 2) // dForce
+            {
+                
+            }
+            else
+            {
+                ROS_ERROR("Invalid nmpc_controller_type: %d", controller.nmpc_controller_type);
+                return -1;
+            }
+        }
+        else if(controller.defalut_controller_type == 2) // attitude
+        {
+            
+        }
+        else
+        {
+            ROS_ERROR("Invalid defalut_controller_type: %d", controller.defalut_controller_type);
+            return -1;
+        }
+    }
+    else
+    {
+        ROS_WARN("Not using defalut controller!");
+    }
+    
 
     /*--------- Client ---------*/
     ros::ServiceClient arming_cmd_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
@@ -152,15 +193,13 @@ int main(int argc, char **argv)
     mavros_msgs::CommandBool arm_cmd;
     mavros_msgs::CommandBool disarm_cmd;
 
-    ros::Rate rate(RATE); // the setpoint publishing rate must be faster than 2Hz
-
-    ros::Time last_request = ros::Time::now();
+    ros::Rate rate(const_params::RATE); // the setpoint publishing rate must be faster than 2Hz
 
     /*--------- PX4 initialize ---------*/
     //user command monitor on
     new std::thread(&UdpListen, 12001);
 
-    InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
+    fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
 
     while (ros::ok())
     {
@@ -169,7 +208,7 @@ int main(int argc, char **argv)
         last_cmd = cmd; //命令保存
         if (cmd == 0)
         {
-            CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
+            fsm_ut::CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
                                            set_mode_client, arming_cmd_client, last_request);
         }
 

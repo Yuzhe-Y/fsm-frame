@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(fsm_ctrl)
 
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11 -DACADOS_WITH_QPOASES)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -76,6 +80,7 @@ find_package(Eigen3 REQUIRED)
 #   DEPENDENCIES
 #   geometry_msgs#   mavros_msgs#   nav_msgs#   std_msgs#   visualization_msgs
 # )
+add_message_files(FILES nmpc_single_model_msgs.msg)
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
@@ -108,8 +113,13 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+set(NMPC_SIMPLE_MODEL_CODE_DIR
+  ${PROJECT_SOURCE_DIR}/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code
+)
+
 catkin_package(
   INCLUDE_DIRS include
+  INCLUDE_DIRS config
 #  LIBRARIES mpcc_ctrl
   CATKIN_DEPENDS geometry_msgs mavros_msgs message_runtime nav_msgs roscpp std_msgs tf visualization_msgs
 #  DEPENDS system_lib
@@ -125,8 +135,18 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/config
   ${GSL_INCLUDE_DIRS}
 )
+
+include_directories($ENV{ACADOS_SOURCE_DIR}/include)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/blasfeo/include)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/hpipm/include)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/osqp/include)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/qpOASES_e/include)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/acados)
+include_directories($ENV{ACADOS_SOURCE_DIR}/include/acados_c)
+include_directories(${PROJECT_SOURCE_DIR}/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -158,10 +178,21 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
+link_directories($ENV{ACADOS_SOURCE_DIR}/lib)
+
+file(GLOB nmpc_simple_model_solver
+  ${NMPC_SIMPLE_MODEL_CODE_DIR}/acados_solver_w_totalF_nmpc.c
+  ${NMPC_SIMPLE_MODEL_CODE_DIR}/w_totalF_nmpc_model/*.c
+  ${NMPC_SIMPLE_MODEL_CODE_DIR}/w_totalF_nmpc_cost/*.c
+)
+
 add_library(
   NmpcCtrl
   src/controllers/ipopt_controller/nmpc_controller.cpp
+  ${NMPC_SIMPLE_MODEL_SOLVER}
 )
+
+target_link_libraries(NmpcCtrl acados blasfeo)
 
 add_library(
   ExtOdomCb
@@ -171,6 +202,11 @@ add_library(
 add_library(
   MavCb
   src/callbacks/mavros_callback.cpp
+)
+
+add_library(
+  TimerCb
+  src/callbacks/timer_callback.cpp
 )
 
 add_library(
@@ -184,6 +220,11 @@ add_library(
   src/utils/math_utils/math_utils.cpp
 )
 
+add_library(
+  ControllerUtils
+  src/utils/controller_utils/controller_utils.cpp
+)
+
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
 target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
 
@@ -191,7 +232,7 @@ add_executable(px4_estimator src/nodes/px4_estimator.cpp)
 target_link_libraries(px4_estimator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb CommUtils MathUtils MavCb)
 
 add_executable(single_offboard_fsm src/nodes/single_offboard_fsm.cpp)
-target_link_libraries(single_offboard_fsm NmpcCtrl ExtOdomCb MavCb CommUtils MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
+target_link_libraries(single_offboard_fsm NmpcCtrl ExtOdomCb MavCb TimerCb CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
 
 target_link_libraries(single_offboard_fsm /usr/local/lib/libcasadi.so.3.7)
 

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 18
+ * @LastEditTime: 2025-09-24 22
  * @FilePath: /fsm_ctrl/src/nodes/swarm_user_cmd.cpp
  * @Description: 
  * 
@@ -162,19 +162,19 @@ int main(int argc, char **argv)
         {
             mavros_ext_odom_pos = fsm_cb::mocap_pos;
             mavros_ext_odom_quat = fsm_cb::mocap_quat;
-            mavros_ext_odom_yaw = QuatToEuler(mavros_ext_odom_quat).z();
+            mavros_ext_odom_yaw = fsm_ut::QuatToEuler(mavros_ext_odom_quat).z();
         }
         else if(mavros_ext_odom_source == 1) // lidar
         {
             mavros_ext_odom_pos = fsm_cb::lidar_pos;
             mavros_ext_odom_quat = fsm_cb::lidar_quat;
-            mavros_ext_odom_yaw = QuatToEuler(mavros_ext_odom_quat).z();
+            mavros_ext_odom_yaw = fsm_ut::QuatToEuler(mavros_ext_odom_quat).z();
         }
         else if(mavros_ext_odom_source == 2) // camera
         {
             mavros_ext_odom_pos = fsm_cb::camera_pos;
             mavros_ext_odom_quat = fsm_cb::camera_quat;
-            mavros_ext_odom_yaw = QuatToEuler(mavros_ext_odom_quat).z();
+            mavros_ext_odom_yaw = fsm_ut::QuatToEuler(mavros_ext_odom_quat).z();
         }
         else
         {

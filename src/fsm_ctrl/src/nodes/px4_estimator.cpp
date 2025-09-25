@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 21
+ * @LastEditTime: 2025-09-24 22
  * @FilePath: /fsm_ctrl/src/nodes/px4_estimator.cpp
  * @Description: 
  * 
@@ -52,15 +52,15 @@ int main(int argc, char **argv)
         {
             if(mavros_ext_odom_source == 0) // mocap
             {
-                mavros_ext_odom_msg = SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
+                mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
             }
             else if(mavros_ext_odom_source == 1) // lidar
             {
-                mavros_ext_odom_msg = SetEkfExtPoseData(fsm_cb::lidar_pos, fsm_cb::lidar_quat);
+                mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::lidar_pos, fsm_cb::lidar_quat);
             }
             else if(mavros_ext_odom_source == 2) // camera
             {
-                mavros_ext_odom_msg = SetEkfExtPoseData(fsm_cb::camera_pos, fsm_cb::camera_quat);
+                mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::camera_pos, fsm_cb::camera_quat);
             }
             else
             {
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
                                                                             mavros_ext_odom_msg.pose.orientation.x, 
                                                                             mavros_ext_odom_msg.pose.orientation.y, 
                                                                             mavros_ext_odom_msg.pose.orientation.z);
-        Eigen::Vector3d mavros_ext_odom_vision = QuatToEuler(mavros_ext_odom_vision_quat);
+        Eigen::Vector3d mavros_ext_odom_vision = fsm_ut::QuatToEuler(mavros_ext_odom_vision_quat);
         if(fabs(mavros_ext_odom_msg.pose.position.x - fsm_cb::mavros_fcu_pos[0]) < mavros_ekf_pos_error_max && 
            fabs(mavros_ext_odom_msg.pose.position.y - fsm_cb::mavros_fcu_pos[1]) < mavros_ekf_pos_error_max && 
            fabs(mavros_ext_odom_msg.pose.position.z - fsm_cb::mavros_fcu_pos[2]) < mavros_ekf_pos_error_max && 
