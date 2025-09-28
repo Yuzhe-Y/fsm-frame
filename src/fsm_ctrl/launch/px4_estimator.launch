@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
 <launch>
-	<node pkg="mpcc_ctrl" type="px4_estimator" name="px4_estimator" output="screen">
+	<node pkg="fsm_ctrl" type="px4_estimator" name="px4_estimator" output="screen">
 		
-		<remap from = "~odom"        to ="/Odometry"/>
-		<remap from = "~pose"        to ="/vrpn_client_node/younger/pose"/>
+		<!-- <remap from = "~odom"        to ="/Odometry"/>
+		<remap from = "~pose"        to ="/vrpn_client_node/younger/pose"/> -->
 	
 	</node>
 

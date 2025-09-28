@@ -118,9 +118,9 @@ int main(int argc, char **argv)
         ("/mavros/setpoint_raw/attitude", 10);
 
     /*--------- Timer&&Controller_utils ---------*/
-    nh.param("use_defalut_controller", controller.use_defalut_controller, true);
-    nh.param("defalut_controller_type", controller.defalut_controller_type, 0);
-    nh.param("nmpc_controller_type", controller.nmpc_controller_type, 0);
+    nh.param("/single_offboard_fsm/controller_choose/use_defalut_controller", controller.use_defalut_controller, true);
+    nh.param("/single_offboard_fsm/controller_choose/defalut_controller_type", controller.defalut_controller_type, 0);
+    nh.param("/single_offboard_fsm/controller_choose/nmpc_controller_type", controller.nmpc_controller_type, 0);
 
     ros::Timer controller_timer;
     if(controller.use_defalut_controller)
@@ -151,7 +151,8 @@ int main(int argc, char **argv)
             if(controller.nmpc_controller_type == 0) // w_and_totalF
             {
                 fsm_ut::IpoptNmpcWandTotalFControllerInit(nh, nmpc_controller_w_and_totalF);
-                controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+                // controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+                std::cout << "NMPCPredictStep: " << nmpc_controller_w_and_totalF.getNLPPredictStep() << std::endl;
             }
             else if(controller.nmpc_controller_type == 1) // Force
             {
@@ -194,13 +195,12 @@ int main(int argc, char **argv)
     mavros_msgs::CommandBool disarm_cmd;
 
     ros::Rate rate(const_params::RATE); // the setpoint publishing rate must be faster than 2Hz
-
     /*--------- PX4 initialize ---------*/
     //user command monitor on
     new std::thread(&UdpListen, 12001);
 
-    fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
-
+    // fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
+    
     while (ros::ok())
     {
         ros::spinOnce();
@@ -208,8 +208,9 @@ int main(int argc, char **argv)
         last_cmd = cmd; //命令保存
         if (cmd == 0)
         {
-            fsm_ut::CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
-                                           set_mode_client, arming_cmd_client, last_request);
+            // fsm_ut::CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
+            //                                set_mode_client, arming_cmd_client, last_request);
+            ROS_INFO("It's okay!");
         }
 
         else if (cmd == 1)

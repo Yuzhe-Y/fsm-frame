@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+    
+    <node pkg="fsm_ctrl" type="single_offboard_fsm" name="single_offboard_fsm" output="screen">
+        <rosparam file="$(find fsm_ctrl)/config/controller_params.yaml" command="load" />
+    </node>
+</launch>

@@ -1,12 +1,11 @@
 controller_choose:
   use_defalut_controller: true
-  defalut_controller_type: 0           # 0: NMPC(ACADOS)  1: NMPC(IPOPT)   2: DFBC 
+  defalut_controller_type: 1           # 0: NMPC(ACADOS)  1: NMPC(IPOPT)   2: DFBC 
                                        # 3: PID           4: PX4_pose_mode
 
   nmpc_controller_type: 0              # 0: w_and_totalF  1: dForce
                                        # 2: Force
 
-acados_parameters:
 
 ipopt_parameters:
   single_predict_horizon: 0.05

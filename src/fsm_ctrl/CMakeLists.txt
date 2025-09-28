@@ -195,6 +195,11 @@ add_library(
 target_link_libraries(NmpcCtrl acados blasfeo)
 
 add_library(
+  MathUtils
+  src/utils/math_utils/math_utils.cpp
+)
+
+add_library(
   ExtOdomCb
   src/callbacks/external_odom_callback.cpp
 )
@@ -204,6 +209,8 @@ add_library(
   src/callbacks/mavros_callback.cpp
 )
 
+target_link_libraries(MavCb MathUtils)
+
 add_library(
   TimerCb
   src/callbacks/timer_callback.cpp
@@ -212,18 +219,16 @@ add_library(
 add_library(
   CommUtils
   src/utils/communication_utils/px4_command.cpp
-  src/callbacks/external_odom_callback.cpp
 )
 
-add_library(
-  MathUtils
-  src/utils/math_utils/math_utils.cpp
-)
+target_link_libraries(CommUtils ExtOdomCb)
 
 add_library(
   ControllerUtils
   src/utils/controller_utils/controller_utils.cpp
 )
+
+target_link_libraries(ControllerUtils MavCb)
 
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
 target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
