@@ -24,6 +24,7 @@ ros::Publisher setpoint_pos_pub;
 ros::Publisher setpoint_vel_pub;
 ros::Publisher setpoint_raw_local_pub;
 ros::Publisher setpoint_raw_att_pub;
+ros::Publisher nmpc_state_pub;
 
 mavros_msgs::SetMode offboard_mode;
 mavros_msgs::SetMode land_mode;
@@ -107,7 +108,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "single_offboard_fsm");
     ros::NodeHandle nh;
 
-    /*--------- Publisher ---------*/
+    /*--------- Normal Publisher ---------*/
     setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
         ("/mavros/setpoint_position/local", 10);
     setpoint_vel_pub = nh.advertise<geometry_msgs::TwistStamped>
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
     setpoint_raw_att_pub = nh.advertise<mavros_msgs::AttitudeTarget>
         ("/mavros/setpoint_raw/attitude", 10);
 
-    /*--------- Timer&&Controller_utils ---------*/
+    /*--------- Timer&&Controller_utils&&Controller Publisher ---------*/
     nh.param("/single_offboard_fsm/controller_choose/use_defalut_controller", controller.use_defalut_controller, true);
     nh.param("/single_offboard_fsm/controller_choose/defalut_controller_type", controller.defalut_controller_type, 0);
     nh.param("/single_offboard_fsm/controller_choose/nmpc_controller_type", controller.nmpc_controller_type, 0);
@@ -151,8 +152,8 @@ int main(int argc, char **argv)
             if(controller.nmpc_controller_type == 0) // w_and_totalF
             {
                 fsm_ut::IpoptNmpcWandTotalFControllerInit(nh, nmpc_controller_w_and_totalF);
-                // controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
-                std::cout << "NMPCPredictStep: " << nmpc_controller_w_and_totalF.getNLPPredictStep() << std::endl;
+                controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+                nmpc_state_pub = nh.advertise<fsm_ctrl::nmpc_simple_model_msgs>("/fsm_ctrl/nmpc_state", 10);
             }
             else if(controller.nmpc_controller_type == 1) // Force
             {
@@ -210,7 +211,6 @@ int main(int argc, char **argv)
         {
             // fsm_ut::CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
             //                                set_mode_client, arming_cmd_client, last_request);
-            ROS_INFO("It's okay!");
         }
 
         else if (cmd == 1)

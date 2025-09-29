@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-25 16
+ * @LastEditTime: 2025-09-29 15
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/callbacks/timer_callback.hpp
  * @Description: 
  * 
@@ -29,6 +29,8 @@
 #include "fsm_ctrl/utils/communication_utils/px4_command.hpp"
 #include "fsm_ctrl/controllers/ipopt_controller/nmpc_controller.hpp"
 #include "fsm_ctrl/nodes/single_offboard_fsm.hpp"
+
+#include "fsm_ctrl/nmpc_simple_model_msgs.h"
 
 
 #include "const_params.h"

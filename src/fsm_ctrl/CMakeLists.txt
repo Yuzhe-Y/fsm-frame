@@ -80,7 +80,7 @@ find_package(Eigen3 REQUIRED)
 #   DEPENDENCIES
 #   geometry_msgs#   mavros_msgs#   nav_msgs#   std_msgs#   visualization_msgs
 # )
-add_message_files(FILES nmpc_single_model_msgs.msg)
+add_message_files(FILES nmpc_simple_model_msgs.msg)
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
