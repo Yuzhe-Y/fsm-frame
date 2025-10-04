@@ -81,6 +81,7 @@ find_package(Eigen3 REQUIRED)
 #   geometry_msgs#   mavros_msgs#   nav_msgs#   std_msgs#   visualization_msgs
 # )
 add_message_files(FILES nmpc_simple_model_msgs.msg)
+add_message_files(FILES dfbc_msgs.msg)
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
@@ -195,6 +196,11 @@ add_library(
 target_link_libraries(NmpcCtrl acados blasfeo)
 
 add_library(
+  DfbcCtrl
+  src/controllers/dfbc_controller/dfbc_controller.cpp
+)
+
+add_library(
   MathUtils
   src/utils/math_utils/math_utils.cpp
 )
@@ -237,7 +243,7 @@ add_executable(px4_estimator src/nodes/px4_estimator.cpp)
 target_link_libraries(px4_estimator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb CommUtils MathUtils MavCb)
 
 add_executable(single_offboard_fsm src/nodes/single_offboard_fsm.cpp)
-target_link_libraries(single_offboard_fsm NmpcCtrl ExtOdomCb MavCb TimerCb CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
+target_link_libraries(single_offboard_fsm NmpcCtrl DfbcCtrl ExtOdomCb MavCb TimerCb CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
 
 target_link_libraries(single_offboard_fsm /usr/local/lib/libcasadi.so.3.7)
 

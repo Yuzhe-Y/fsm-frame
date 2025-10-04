@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-29 15
+ * @LastEditTime: 2025-10-04 15
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/callbacks/timer_callback.hpp
  * @Description: 
  * 
@@ -31,6 +31,7 @@
 #include "fsm_ctrl/nodes/single_offboard_fsm.hpp"
 
 #include "fsm_ctrl/nmpc_simple_model_msgs.h"
+#include "fsm_ctrl/dfbc_msgs.h"
 
 
 #include "const_params.h"
@@ -39,6 +40,7 @@ namespace fsm_cb
 {
     void AcadosNmpcSimpleModelTimerCallback(const ros::TimerEvent& event);
     void IpoptNmpcWandTotalFTimerCallback(const ros::TimerEvent& event);
+    void DFBCTimerCallback(const ros::TimerEvent& event);
 }
 
 #endif // __TIMER_CALLBACK_H__

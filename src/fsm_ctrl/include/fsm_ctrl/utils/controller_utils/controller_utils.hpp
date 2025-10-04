@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-25 16
+ * @LastEditTime: 2025-10-04 15
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/controller_utils/controller_utils.hpp
  * @Description: 
  * 
@@ -16,7 +16,10 @@
 #include <eigen3/Eigen/Dense>
 
 #include "fsm_ctrl/controllers/ipopt_controller/nmpc_controller.hpp"
+#include "fsm_ctrl/controllers/dfbc_controller/dfbc_controller.hpp"
 #include "fsm_ctrl/callbacks/mavros_callback.hpp"
+
+#include "const_params.h"
 
 namespace fsm_ut
 {
@@ -35,7 +38,8 @@ namespace fsm_ut
 
         std::vector<Eigen::Vector3d> position_ref; //位置参考
         std::vector<Eigen::Vector3d> velocity_ref; //速度参考
-        std::vector<Eigen::Vector4d> attitude_ref; //姿态参考
+        std::vector<Eigen::Vector3d> acceleration_ref; //加速度参考
+        std::vector<Eigen::Quaterniond> attitude_ref; //姿态参考
         std::vector<Eigen::Vector3d> angular_velocity_ref; //角速度参考
         std::vector<double> acc_z_ref;
         std::vector<Eigen::Vector4d> force_ref; //电机
@@ -45,6 +49,7 @@ namespace fsm_ut
     void SetControllerFdb(Controller& controller);
 
     void IpoptNmpcWandTotalFControllerInit(ros::NodeHandle& nh, NMPC_Ctrller_simple& nmpc_controller);
+    void DFBCControllerInit(ros::NodeHandle& nh, DFBC_Controller& dfbc_controller);
 
 } // namespace fsm_ut
 #endif

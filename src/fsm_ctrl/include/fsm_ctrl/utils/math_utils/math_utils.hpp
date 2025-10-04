@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-24 21
+ * @LastEditTime: 2025-10-04 15
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/math_utils/math_utils.hpp
  * @Description: 
  * 
@@ -18,8 +18,6 @@
 #include <eigen3/Eigen/Eigen>
 #include "const_params.h"
 
-#define GRAV 9.8015
-
 namespace fsm_ut
 {
 
@@ -35,20 +33,19 @@ namespace fsm_ut
     };
 
 
-    class ThrustEst
+    class Thr_LSE
     {
         public:
-            double p_est = 1e6;
-            double rho = 0.998;         // forgetting factor, Do Not Change!!!
-            double ctrl_interv;
-            double hover_thrust;
-            double thrust_to_force;
-            std::queue<std::pair<ros::Time, double>> thrust_stamped;
-
-            ThrustEst() = default;
-
-            void Set_Estor(double _ctrl_interv, double _hover_thrust);
-            double LSEst(double _force);
+    
+            double p_est, rho;
+            double dt;
+            double hover_thr, thr;
+            double thr_to_acc;
+            
+            Thr_LSE();
+            ~Thr_LSE() = default;
+            void Init_ThrEst(double _ctrl_rate, double _hover_thr);
+            double LinearThrEst(double _acc);
     };
 
     class LowPassFilter 
@@ -122,5 +119,6 @@ namespace fsm_ut
     std::array<double, 4> transformSpline(const std::array<double, 4>& a, double s0);
     std::array<double, 4> reverseTransformSpline(const std::array<double, 4>& b, double s0);
 
+    Eigen::Matrix3d DiffFlat(Eigen::Vector3d _acc, double _yaw);
 } // namespace fsm_ut
 #endif

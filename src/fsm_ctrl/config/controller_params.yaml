@@ -1,13 +1,16 @@
-controller_choose:
+controller_basic_params:
   use_defalut_controller: true
   defalut_controller_type: 1           # 0: NMPC(ACADOS)  1: NMPC(IPOPT)   2: DFBC 
                                        # 3: PID           4: PX4_pose_mode
 
   nmpc_controller_type: 0              # 0: w_and_totalF  1: dForce
                                        # 2: Force
+  
+  hover_thrust: 0.19
 
 
 ipopt_parameters:
+  ctrl_rate: 50.0
   single_predict_horizon: 0.05
   predict_steps: 20
 
@@ -75,3 +78,18 @@ ipopt_parameters:
     R_dforce_1: 0.1
     R_dforce_2: 0.1
     R_dforce_3: 0.1
+
+dfbc_parameters:
+  ctrl_rate: 50.0
+  kp_pos_x: 1.0
+  kp_pos_y: 1.0
+  kp_pos_z: 1.0
+  ki_pos_x: 0.0
+  ki_pos_y: 0.0
+  ki_pos_z: 0.0
+  kd_pos_x: 0.5
+  kd_pos_y: 0.5
+  kd_pos_z: 0.5
+  kp_vel_x: 0.1
+  kp_vel_y: 0.1
+  kp_vel_z: 0.1

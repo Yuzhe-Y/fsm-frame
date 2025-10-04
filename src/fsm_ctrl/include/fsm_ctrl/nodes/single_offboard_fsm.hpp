@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-29 15
+ * @LastEditTime: 2025-10-04 14
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/nodes/single_offboard_fsm.hpp
  * @Description: 
  * 
@@ -65,11 +65,16 @@
 #include "fsm_ctrl/callbacks/external_odom_callback.hpp"
 #include "fsm_ctrl/callbacks/timer_callback.hpp"
 #include "fsm_ctrl/controllers/ipopt_controller/nmpc_controller.hpp"
+#include "fsm_ctrl/controllers/dfbc_controller/dfbc_controller.hpp"
 #include "fsm_ctrl/utils/communication_utils/px4_command.hpp"
 
 #include <fsm_ctrl/nmpc_simple_model_msgs.h>
+#include <fsm_ctrl/dfbc_msgs.h>
 
 #include "const_params.h"
+
+extern double last_cmd_time;
+extern double now_cmd_time;
 
 extern ros::Publisher setpoint_pos_pub;
 extern ros::Publisher setpoint_vel_pub;
@@ -79,5 +84,8 @@ extern ros::Publisher nmpc_state_pub;
 
 extern fsm_ut::Controller controller;
 extern NMPC_Ctrller_simple nmpc_controller_w_and_totalF;
+extern DFBC_Controller dfbc_controller;
+
+extern bool controller_work_enable;
 
 #endif

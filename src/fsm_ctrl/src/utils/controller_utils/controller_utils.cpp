@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-28 16
+ * @LastEditTime: 2025-10-04 15
  * @FilePath: /fsm_ctrl/src/utils/controller_utils/controller_utils.cpp
  * @Description: 
  * 
@@ -84,6 +84,38 @@ void IpoptNmpcWandTotalFControllerInit(ros::NodeHandle& nh, NMPC_Ctrller_simple&
                                        nmpc_R_acc_z); //构造函数
 
     nmpc_controller = tmp_controller;
+}
+
+void DFBCControllerInit(ros::NodeHandle& nh, DFBC_Controller& dfbc_controller)
+{
+    int ctrl_rate;
+    double hover_thrust_percentage;
+    double kp_pos_x, kp_pos_y, kp_pos_z;
+    double ki_pos_x, ki_pos_y, ki_pos_z;
+    double kd_vel_x, kd_vel_y, kd_vel_z;
+    double kp_vel_x, kp_vel_y, kp_vel_z;
+
+    nh.param("/single_offboard_fsm/controller_basic_params/hover_thrust", hover_thrust_percentage, 0.1);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_pos_x", kp_pos_x, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_pos_y", kp_pos_y, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_pos_z", kp_pos_z, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/ki_pos_x", ki_pos_x, 0.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/ki_pos_y", ki_pos_y, 0.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/ki_pos_z", ki_pos_z, 0.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kd_vel_x", kd_vel_x, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kd_vel_y", kd_vel_y, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kd_vel_z", kd_vel_z, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_vel_x", kp_vel_x, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_vel_y", kp_vel_y, 1.0);
+    nh.param("/single_offboard_fsm/dfbc_parameters/kp_vel_z", kp_vel_z, 1.0);
+
+    Eigen::Vector3d kp_pos, ki_pos, kd_vel, kp_vel;
+    kp_pos << kp_pos_x, kp_pos_y, kp_pos_z;
+    ki_pos << ki_pos_x, ki_pos_y, ki_pos_z;
+    kd_vel << kd_vel_x, kd_vel_y, kd_vel_z;
+    kp_vel << kp_vel_x, kp_vel_y, kp_vel_z;
+
+    dfbc_controller.Init(const_params::RATE, hover_thrust_percentage, kp_pos, ki_pos, kd_vel, kp_vel);
 }
 
 } // namespace fsm_ut

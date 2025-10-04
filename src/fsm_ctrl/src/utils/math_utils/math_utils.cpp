@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-24 21
+ * @LastEditTime: 2025-10-04 15
  * @FilePath: /fsm_ctrl/src/utils/math_utils/math_utils.cpp
  * @Description: 
  * 
@@ -194,72 +194,68 @@ double Sign(double _data)
 
 
 /**
- * @brief  thrust estimator setup 
- * @param  _ctrl_interv: control interval
- * @param  _hover_thrust: hover thrust
+ * @fn     Thr_LSE
+ * @brief  constructer of Thr_LSE
+ * @param  NULL 
  * @return NULL
  */
-void ThrustEst::Set_Estor(double _ctrl_interv, double _hover_thrust)
+Thr_LSE::Thr_LSE()
 {
-    ctrl_interv = _ctrl_interv;
-    hover_thrust = _hover_thrust;
-    thrust_to_force = const_params::GRAVITY/_hover_thrust;
+    p_est = 10.0;
+    rho = 0.998;         // forgetting factor, Do Not Change!!!
+    dt = 0.0;
+    hover_thr = 0.0;
+    thr = 0.0;
+    thr_to_acc = static_cast<double>(INFINITY);
 }
 
 
 /**
- * @brief  recursive least squares thrust estimation with forgetting factor
- * @param  _force: acceleration
- * @return thrust
+ * @fn     Init_ThrEst
+ * @brief  initialize thrust estimator
+ * @param  _rate: control rate
+ * @param  _hover_thr: hover thrust
+ * @return NULL
  */
-double ThrustEst::LSEst(double _force)
+void Thr_LSE::Init_ThrEst(double _rate, double _hover_thr)
 {
-    ros::Time now = ros::Time::now();
-    while(thrust_stamped.size() > 1)
+    dt = 1.0/_rate;
+    hover_thr = _hover_thr;
+    thr = _hover_thr;
+    thr_to_acc = const_params::GRAVITY/_hover_thr;
+}
+
+
+/**
+ * @fn     LinearThrEst
+ * @brief  recursive least squares thrust estimation with forgetting factor
+ * @param  _acc: acceleration
+ * @return thrust
+ * @note   model: acc = thr_to_acc * thr, thr ∈ (0, 1)
+ */
+double Thr_LSE::LinearThrEst(double _acc)
+{   
+    double gamma = 1.0/(rho + thr*p_est*thr);
+    double k_est = gamma*p_est*thr;
+    thr_to_acc = thr_to_acc + k_est*(_acc - thr*thr_to_acc);
+    p_est = (1.0 - k_est*thr)*p_est/rho;
+
+    /*    esitimation divergence    */
+    if(abs(const_params::GRAVITY/hover_thr - thr_to_acc)/(const_params::GRAVITY/hover_thr) > 0.2)
     {
-        /* choose data 2 cycles before */
-        std::pair<ros::Time, double> time_thrust_pair = thrust_stamped.front();
-        // double time_pass = (now - time_thrust_pair.first).toSec();
-        // std::cout << "time_pass: " << time_pass << std::endl;
-        if(thrust_stamped.size() >= 3)
-        {
-            thrust_stamped.pop();
-            ROS_WARN("Data is too old!!! Slope unchanged!!!");
-            // std::cout << "ctrl_interv: " << ctrl_interv << std::endl;
-            // std::cout << "time: " << time_pass << std::endl;
-            continue;
-        }
-        // if(time_pass < ctrl_interv)
-        // if(time_pass < 0.0)
-        // {
-        //     thrust_stamped.push(std::pair<ros::Time, double>(now, _force/thrust_to_force));
-        //     ROS_ERROR("Thrust estimation failed!!! Slope unchanged!!!");
-        //     std::cout << "ctrl_interv: " << ctrl_interv << std::endl;
-        //     std::cout << "time: " << time_pass << std::endl;
-        //     // std::cout << "thrust: " << _force/thrust_to_force << std::endl; 
-        //     return _force/thrust_to_force;
-        // }
-        
-        /* successful estimation */
-        double thrust = time_thrust_pair.second;
-        thrust_stamped.pop();
-
-        /* model: force = thrust_to_force * thrust */
-        double gamma = 1.0/(rho + thrust*p_est*thrust);
-        double k_est = gamma*p_est*thrust;
-        thrust_to_force = thrust_to_force + k_est*(_force - thrust*thrust_to_force);
-        p_est = (1.0 - k_est*thrust)*p_est/rho;
-        thrust = _force/thrust_to_force;
-
-        thrust_stamped.push(std::pair<ros::Time, double>(now, thrust));
-        // std::cout << "thrust: " << thrust << std::endl;
-        return thrust;
+        ROS_ERROR("Thrust Estimation Diverge !!!");
+        thr_to_acc = const_params::GRAVITY/hover_thr;    // reset coefficient    
     }
-
-    thrust_stamped.push(std::pair<ros::Time, double>(now, _force/thrust_to_force));
-    ROS_WARN("No data for thrust estimation!!! Slope unchanged!!!");
-    // std::cout << "thrust: " << _force/thrust_to_force << std::endl;
-    return _force/thrust_to_force;
+    
+    thr = _acc/thr_to_acc;
+    
+    if(thr < 0.1 || thr > 0.9)
+    {
+        ROS_ERROR("Thrust Esitimation Error !!! Thrust Out of Linear Range !!!");
+        // return hover_thr;
+        return thr;
+    }
+    else {return thr;}
 }
 
 LowPassFilter::LowPassFilter() 
@@ -487,6 +483,24 @@ std::array<double, 4> reverseTransformSpline(const std::array<double, 4>& b, dou
         }
     }
     return a;
+}
+
+/**
+ * @fn     DiffFlat
+ * @brief  differential flatness transformation
+ * @param  _acc_thr: acceleration from thrust
+ * @param  _yaw: yaw angle
+ * @return rotation matrix
+ */
+Eigen::Matrix3d DiffFlat(Eigen::Vector3d _acc_thr, double _yaw)
+{
+    Eigen::Vector3d zB = _acc_thr.normalized();
+    Eigen::Vector3d yC = Eigen::Vector3d(-std::sin(_yaw), std::cos(_yaw), 0.0);
+    Eigen::Vector3d xB = yC.cross(zB).normalized();
+    Eigen::Vector3d yB = zB.cross(xB);
+    Eigen::Matrix3d mat;
+    mat << xB, yB, zB;
+    return mat;
 }
 
 } // namespace fsm_ut

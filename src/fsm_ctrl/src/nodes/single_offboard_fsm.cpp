@@ -17,7 +17,10 @@ bool is_udp_enable = true;         //是否可以进行进程间通信
 int cmd = 0;                                     //输入命令
 int last_cmd = 0;                                //上一次输入命令
 
-ros::Time last_request;           //主程序开始时间
+double last_request;           //主程序开始时间
+double last_cmd_time;         //上一次命令时间
+double now_cmd_time;          //当前命令时间
+
 
 /*--------------------------- ROS ---------------------------*/
 ros::Publisher setpoint_pos_pub;
@@ -33,7 +36,10 @@ mavros_msgs::CommandBool arm_cmd, disarm_cmd;
 
 fsm_ut::Controller controller; //控制器对象
 NMPC_Ctrller_simple nmpc_controller_w_and_totalF; // w and totalF controller
+DFBC_Controller dfbc_controller; // DFBC controller
 const_params::Nmpc_Params nmpc_params;
+
+bool controller_work_enable; //控制器工作使能
 
 
 /*--------------------------- CMD Listener ---------------------------*/
@@ -119,9 +125,9 @@ int main(int argc, char **argv)
         ("/mavros/setpoint_raw/attitude", 10);
 
     /*--------- Timer&&Controller_utils&&Controller Publisher ---------*/
-    nh.param("/single_offboard_fsm/controller_choose/use_defalut_controller", controller.use_defalut_controller, true);
-    nh.param("/single_offboard_fsm/controller_choose/defalut_controller_type", controller.defalut_controller_type, 0);
-    nh.param("/single_offboard_fsm/controller_choose/nmpc_controller_type", controller.nmpc_controller_type, 0);
+    nh.param("/single_offboard_fsm/controller_basic_params/use_defalut_controller", controller.use_defalut_controller, true);
+    nh.param("/single_offboard_fsm/controller_basic_params/defalut_controller_type", controller.defalut_controller_type, 0);
+    nh.param("/single_offboard_fsm/controller_basic_params/nmpc_controller_type", controller.nmpc_controller_type, 0);
 
     ros::Timer controller_timer;
     if(controller.use_defalut_controller)
@@ -147,12 +153,15 @@ int main(int argc, char **argv)
                 return -1;
             }
         }
-        else if(controller.defalut_controller_type == 1) // velocity
+        else if(controller.defalut_controller_type == 1) // NMPC(IPOPT)
         {
             if(controller.nmpc_controller_type == 0) // w_and_totalF
             {
+                double ctrl_rate, ctrl_duration;
+                nh.param("/single_offboard_fsm/ipopt_parameters/ctrl_rate", ctrl_rate, 50.0);
+                ctrl_duration = 1.0 / ctrl_rate;
                 fsm_ut::IpoptNmpcWandTotalFControllerInit(nh, nmpc_controller_w_and_totalF);
-                controller_timer = nh.createTimer(ros::Duration(0.02), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+                controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
                 nmpc_state_pub = nh.advertise<fsm_ctrl::nmpc_simple_model_msgs>("/fsm_ctrl/nmpc_state", 10);
             }
             else if(controller.nmpc_controller_type == 1) // Force
@@ -171,7 +180,11 @@ int main(int argc, char **argv)
         }
         else if(controller.defalut_controller_type == 2) // attitude
         {
-            
+            double ctrl_rate, ctrl_duration;
+            nh.param("/single_offboard_fsm/dfbc_parameters/ctrl_rate", ctrl_rate, 50.0);
+            ctrl_duration = 1.0 / ctrl_rate;
+            fsm_ut::DFBCControllerInit(nh, dfbc_controller);
+            controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::DFBCTimerCallback);
         }
         else
         {
@@ -199,6 +212,7 @@ int main(int argc, char **argv)
     /*--------- PX4 initialize ---------*/
     //user command monitor on
     new std::thread(&UdpListen, 12001);
+    last_request = ros::Time::now().toSec();
 
     // fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
     
@@ -207,8 +221,12 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         last_cmd = cmd; //命令保存
+        last_cmd_time = now_cmd_time;
+        now_cmd_time = ros::Time::now().toSec() - last_request;
+
         if (cmd == 0)
         {
+            controller_work_enable = false;
             // fsm_ut::CheckAndSwitchToOffboardAndArm(fsm_cb::mavros_state, offboard_mode, arm_cmd, 
             //                                set_mode_client, arming_cmd_client, last_request);
         }
