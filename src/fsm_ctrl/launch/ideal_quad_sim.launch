@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find fsm_ctrl)/launch/simulator.rviz" />
+    
+    <node pkg="fsm_ctrl" type="ideal_quad_sim" name="ideal_quad_sim" output="screen">
+        <rosparam file="$(find fsm_ctrl)/config/simulator_params.yaml" command="load" />
+    </node>
+
+</launch>

@@ -236,6 +236,11 @@ add_library(
 
 target_link_libraries(ControllerUtils MavCb)
 
+add_library(
+  Simulator
+  src/simulator/ideal_quad_sim.cpp
+)
+
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
 target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
 
@@ -244,6 +249,9 @@ target_link_libraries(px4_estimator MathUtils ${catkin_LIBRARIES} boost_system b
 
 add_executable(single_offboard_fsm src/nodes/single_offboard_fsm.cpp)
 target_link_libraries(single_offboard_fsm NmpcCtrl DfbcCtrl ExtOdomCb MavCb TimerCb CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
+
+add_executable(ideal_quad_sim src/simulator/ideal_quad_sim.cpp)
+target_link_libraries(ideal_quad_sim Simulator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
 
 target_link_libraries(single_offboard_fsm /usr/local/lib/libcasadi.so.3.7)
 

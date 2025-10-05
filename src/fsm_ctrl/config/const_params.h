@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-23 14
+ * @LastEditTime: 2025-10-05 15
  * @FilePath: /fsm_ctrl/config/const_params.h
  * @Description: 
  * 
@@ -32,6 +32,11 @@ namespace const_params
         W_TOTALF_NMPC_NP_GLOBAL
     };
 
+    // SIMULATOR 参数
+    constexpr double SIM_DURATION = 0.01;
+    constexpr double SIM_GRAVITY = 9.8015; // 重力加速度
+
+    // REAL_WORLD 参数
     constexpr double RATE = 50.0;
     constexpr double INTERV = 1.0/RATE;
 
