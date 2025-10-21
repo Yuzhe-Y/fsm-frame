@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-24 21
+ * @LastEditTime: 2025-10-06 19
  * @FilePath: /fsm_ctrl/src/callbacks/mavros_callback.cpp
  * @Description: 
  * 
@@ -15,6 +15,7 @@ namespace fsm_cb
 
     sensor_msgs::BatteryState mavros_battery;
     mavros_msgs::State mavros_state;
+
     Eigen::Vector3d mavros_fcu_pos;    
     Eigen::Vector3d mavros_fcu_vel;     
     Eigen::Quaterniond mavros_fcu_quat;
@@ -22,6 +23,12 @@ namespace fsm_cb
 
     Eigen::Vector3d mavros_imu_acc;
     Eigen::Vector3d mavros_imu_rate;
+    Eigen::Quaterniond mavros_imu_quat;
+    Eigen::Vector3d mavros_imu_euler;
+
+    double mavros_esc_voltage;
+    Eigen::Vector4d mavros_esc_rotor_rpm;
+
     mavros_msgs::RCIn mavros_rc;
     bool is_quat_init;
     bool is_need_rot;
@@ -95,6 +102,12 @@ namespace fsm_cb
     {
         mavros_imu_acc = Eigen::Vector3d(msg->linear_acceleration.x, msg->linear_acceleration.y, msg->linear_acceleration.z);
         mavros_imu_rate = Eigen::Vector3d(msg->angular_velocity.x, msg->angular_velocity.y, msg->angular_velocity.z);   
+    }
+
+    void MavrosEscCallback(const mavros_msgs::ESCStatus::ConstPtr &msg)
+    {
+        mavros_esc_voltage = (msg->esc_status[0].voltage + msg->esc_status[1].voltage + msg->esc_status[2].voltage + msg->esc_status[3].voltage)/4;
+        mavros_esc_rotor_rpm = Eigen::Vector4d(msg->esc_status[0].rpm, msg->esc_status[1].rpm, msg->esc_status[2].rpm, msg->esc_status[3].rpm);
     }
 
     /**

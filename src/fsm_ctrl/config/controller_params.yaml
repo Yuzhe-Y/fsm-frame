@@ -7,6 +7,7 @@ controller_basic_params:
                                        # 2: Force
   
   hover_thrust: 0.19
+  first_takeoff_height: 0.5
 
 
 ipopt_parameters:

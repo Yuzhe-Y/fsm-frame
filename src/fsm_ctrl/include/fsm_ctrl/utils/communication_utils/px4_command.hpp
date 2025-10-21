@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-25 16
+ * @LastEditTime: 2025-10-06 20
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/communication_utils/px4_command.hpp
  * @Description: 
  * 
@@ -28,6 +28,8 @@
 
 namespace fsm_ut
 {
+    geometry_msgs::PoseStamped SetPositionAndYawCmd(double x, double y, double z, double yaw);
+    geometry_msgs::TwistStamped SetVelocityAndYawRateCmd(double x_vel, double y_vel, double z_vel, double yaw_rate);
     mavros_msgs::PositionTarget SetTargetPositionAndYawCmd(double x, double y, double z, double yaw);
     mavros_msgs::PositionTarget SetTargetVelocityAndYawRateCmd(double x_vel, double y_vel, double z_vel, double yaw_rate);
     mavros_msgs::AttitudeTarget SetTargetRateAndTotalThrustCmd(double x_rate, double y_rate, double z_rate, double total_thrust);

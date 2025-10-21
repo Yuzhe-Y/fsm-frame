@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-24 19
+ * @LastEditTime: 2025-10-06 20
  * @FilePath: /fsm_ctrl/src/utils/communication_utils/px4_command.cpp
  * @Description: 
  * 
@@ -12,6 +12,38 @@
 
 namespace fsm_ut
 {
+
+geometry_msgs::PoseStamped SetPositionAndYawCmd(double x, double y, double z, double yaw)
+{
+    geometry_msgs::PoseStamped msg;
+    msg.header.frame_id = std::string("FCU");
+
+    msg.pose.position.x = x;
+    msg.pose.position.y = y;
+    msg.pose.position.z = z;
+    Eigen::Quaterniond att = fsm_ut::EulerToQuat(0.0, 0.0, yaw);
+    msg.pose.orientation.w = att.w();
+    msg.pose.orientation.x = att.x();
+    msg.pose.orientation.y = att.y();
+    msg.pose.orientation.z = att.z();
+
+    return msg;
+}
+
+geometry_msgs::TwistStamped SetVelocityAndYawRateCmd(double x_vel, double y_vel, double z_vel, double yaw_rate)
+{
+    geometry_msgs::TwistStamped msg;
+    msg.header.frame_id = std::string("FCU");
+
+    msg.twist.linear.x = x_vel;
+    msg.twist.linear.y = y_vel;
+    msg.twist.linear.z = z_vel;
+    msg.twist.angular.x = 0.0;
+    msg.twist.angular.y = 0.0;
+    msg.twist.angular.z = yaw_rate;
+
+    return msg;
+}
 
 /**
  * @description: Set px4 target position and yaw command

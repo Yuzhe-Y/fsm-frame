@@ -241,6 +241,11 @@ add_library(
   src/simulator/ideal_quad_sim.cpp
 )
 
+add_library(
+  FsmUtils
+  src/utils/fsm_utils/basic_fsm.cpp
+)
+
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
 target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
 
