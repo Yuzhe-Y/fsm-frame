@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-27 10
+ * @LastEditTime: 2025-10-27 21
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/controller_utils/controller_utils.hpp
  * @Description: 
  * 
@@ -57,10 +57,10 @@ namespace fsm_ut
         std::vector<Eigen::Vector4d> delta_force_ref; //电机增量
     };
 
-    struct AcadosController
+    struct AcadosSimpleController
     {
         w_totalF_nmpc_solver_capsule *acados_ocp_capsule;
-        const int N = const_params::W_TOTALF_PARAMS.NP; //预测步数
+        const int N = const_params::W_TOTALF_PARAMS.N; //预测步数
         double* new_time_steps;
         int status;
 
@@ -82,15 +82,16 @@ namespace fsm_ut
         double elapsed_time;
         int sqp_iter;
 
-        // double xtraj[const_params::W_TOTALF_PARAMS.NX * (N+1)];
-        // double utraj[const_params::W_TOTALF_PARAMS.NU * N];
+        double xtraj[const_params::W_TOTALF_PARAMS.NX * (const_params::W_TOTALF_PARAMS.N+1)];
+        double utraj[const_params::W_TOTALF_PARAMS.NU * const_params::W_TOTALF_PARAMS.N];
+        double params[const_params::W_TOTALF_PARAMS.NP];
     };
 
     void SetControllerFdb(Controller& controller);
 
     void IpoptNmpcWandTotalFControllerInit(ros::NodeHandle& nh, NMPC_Ctrller_simple& nmpc_controller);
     void DFBCControllerInit(ros::NodeHandle& nh, DFBC_Controller& dfbc_controller);
-    void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh);
+    void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleController& acados_controller);
 
 } // namespace fsm_ut
 #endif

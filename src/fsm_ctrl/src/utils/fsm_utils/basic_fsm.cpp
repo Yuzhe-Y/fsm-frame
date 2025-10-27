@@ -91,6 +91,8 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh)
     
     is_landing_in_progress = false;
 
+    AcadosNmpcWandTotalFControllerInit(nh, acados_simple_controller);
+
     /*--------- Client ---------*/
     arming_cmd_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");

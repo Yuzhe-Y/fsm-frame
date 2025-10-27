@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-27 09
+ * @LastEditTime: 2025-10-27 21
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/fsm_utils/basic_fsm.hpp
  * @Description: 
  * 
@@ -114,6 +114,7 @@ class Basic_FSM
 
         NMPC_Ctrller_simple nmpc_controller_w_and_totalF;
         DFBC_Controller dfbc_controller;
+        fsm_ut::AcadosSimpleController acados_simple_controller;
 
         geometry_msgs::PoseStamped mavros_pos_cmd;
         geometry_msgs::TwistStamped mavros_vel_cmd;  

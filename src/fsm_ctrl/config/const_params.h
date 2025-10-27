@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-05 15
+ * @LastEditTime: 2025-10-27 20
  * @FilePath: /fsm_ctrl/config/const_params.h
  * @Description: 
  * 
@@ -16,20 +16,27 @@
 namespace const_params
 {
     struct Nmpc_Params {
+        int N;
         int NX;
         int NP;
         int NU;
         int NBX0;
-        int NP_GLOBAL;
+        int NY0;
+        int NY;
+        int NYN;
     };
 
     // 两套不同控制器的参数
     constexpr Nmpc_Params W_TOTALF_PARAMS {
+        W_TOTALF_NMPC_N,
         W_TOTALF_NMPC_NX,
         W_TOTALF_NMPC_NP,
         W_TOTALF_NMPC_NU,
         W_TOTALF_NMPC_NBX0,
-        W_TOTALF_NMPC_NP_GLOBAL
+        W_TOTALF_NMPC_NY0,
+        W_TOTALF_NMPC_NY,
+        W_TOTALF_NMPC_NYN
+
     };
 
     // SIMULATOR 参数
