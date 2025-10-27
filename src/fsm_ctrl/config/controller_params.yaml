@@ -7,8 +7,33 @@ controller_basic_params:
                                        # 2: Force
   
   hover_thrust: 0.19
-  first_takeoff_height: 0.5
+  first_takeoff_height: 0.4
 
+acados_parameters:
+  max_w_limit: 0.5
+  max_acc_z_limit: 15.0
+  max_force_limit: 10.0
+  max_dforce_limit: 5.0
+
+  min_w_limit: -0.5
+  min_acc_z_limit: 0.0
+  min_force_limit: -10.0
+  min_dforce_limit: -5.0
+
+  w_and_totalF_params:
+    Q_pos_x: 1.0
+    Q_pos_y: 1.0
+    Q_pos_z: 1.0
+    Q_vel_x: 0.1
+    Q_vel_y: 0.1
+    Q_vel_z: 0.1
+    Q_quat_x: 0.01
+    Q_quat_y: 0.01
+    Q_quat_z: 0.01
+    R_w_x: 0.1
+    R_w_y: 0.1
+    R_w_z: 0.1
+    R_acc_z: 0.1
 
 ipopt_parameters:
   ctrl_rate: 50.0

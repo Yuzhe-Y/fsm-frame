@@ -234,7 +234,7 @@ add_library(
   src/utils/controller_utils/controller_utils.cpp
 )
 
-target_link_libraries(ControllerUtils MavCb)
+target_link_libraries(ControllerUtils MavCb NmpcCtrl DfbcCtrl MathUtils)
 
 add_library(
   Simulator
@@ -246,6 +246,8 @@ add_library(
   src/utils/fsm_utils/basic_fsm.cpp
 )
 
+target_link_libraries(FsmUtils DfbcCtrl NmpcCtrl TimerCb ControllerUtils MathUtils)
+
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
 target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
 
@@ -253,7 +255,7 @@ add_executable(px4_estimator src/nodes/px4_estimator.cpp)
 target_link_libraries(px4_estimator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb CommUtils MathUtils MavCb)
 
 add_executable(single_offboard_fsm src/nodes/single_offboard_fsm.cpp)
-target_link_libraries(single_offboard_fsm NmpcCtrl DfbcCtrl ExtOdomCb MavCb TimerCb CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
+target_link_libraries(single_offboard_fsm NmpcCtrl DfbcCtrl ExtOdomCb MavCb TimerCb FsmUtils CommUtils MathUtils ControllerUtils ${catkin_LIBRARIES} boost_system boost_filesystem)
 
 add_executable(ideal_quad_sim src/simulator/ideal_quad_sim.cpp)
 target_link_libraries(ideal_quad_sim Simulator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem)

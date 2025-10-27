@@ -1,8 +1,11 @@
 #include <fsm_ctrl/utils/fsm_utils/basic_fsm.hpp>
 
+namespace fsm_ut
+{
 
+Basic_FSM::Basic_FSM(){}
 
-Basic_FSM::Basic_FSM(ros::NodeHandle &nh): rate(const_params::RATE)                                   
+void Basic_FSM::Basic_Init(ros::NodeHandle &nh)                               
 {
     /*--------- Normal Publisher ---------*/
     setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
@@ -20,6 +23,7 @@ Basic_FSM::Basic_FSM(ros::NodeHandle &nh): rate(const_params::RATE)
     nh.param("/single_offboard_fsm/controller_basic_params/nmpc_controller_type", controller.nmpc_controller_type, 0);
     nh.param("/single_offboard_fsm/controller_basic_params/hover_thrust_percentage", hover_thrust_percentage, 0.1);
     nh.param("/single_offboard_fsm/controller_basic_params/first_takeoff_height", first_takeoff_height, 0.5);
+    fsm.controller_work_enable = false;
 
     if(controller.use_defalut_controller)
     {
@@ -52,7 +56,7 @@ Basic_FSM::Basic_FSM(ros::NodeHandle &nh): rate(const_params::RATE)
                 ctrl_duration = 1.0 / ctrl_rate;
                 fsm_ut::IpoptNmpcWandTotalFControllerInit(nh, nmpc_controller_w_and_totalF);
                 controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
-                nmpc_state_pub = nh.advertise<fsm_ctrl::nmpc_simple_model_msgs>("/fsm_ctrl/nmpc_state", 10);
+                // nmpc_state_pub = nh.advertise<fsm_ctrl::nmpc_simple_model_msgs>("/fsm_ctrl/nmpc_state", 10);
             }
             else if(controller.nmpc_controller_type == 1) // Force
             {
@@ -72,8 +76,8 @@ Basic_FSM::Basic_FSM(ros::NodeHandle &nh): rate(const_params::RATE)
             double ctrl_rate, ctrl_duration;
             nh.param("/single_offboard_fsm/dfbc_parameters/ctrl_rate", ctrl_rate, 50.0);
             ctrl_duration = 1.0 / ctrl_rate;
-            fsm_ut::DFBCControllerInit(nh, dfbc_controller);
-            controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::DFBCTimerCallback);
+            // fsm_ut::DFBCControllerInit(nh, dfbc_controller);
+            // controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::DFBCTimerCallback);
         }
         else
         {
@@ -90,10 +94,16 @@ Basic_FSM::Basic_FSM(ros::NodeHandle &nh): rate(const_params::RATE)
     /*--------- Client ---------*/
     arming_cmd_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+
+    last_request = ros::Time::now().toSec();
+
+    // fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);
+
+    
 }
 
 
-FLAG_FSM::FLAG_FSM(ros::NodeHandle &nh): Basic_FSM(nh) 
+FLAG_FSM::FLAG_FSM(): Basic_FSM() 
 {
     std::cout << "*************************" << std::endl;
     std::cout << "* Make FLAG Great Again *" << std::endl;
@@ -182,33 +192,37 @@ void Basic_FSM::UDPListen(const uint16_t cport)
 
 void Basic_FSM::Basic_Task()
 {   
+    last_cmd = cmd; //命令保存
+    last_cmd_time = now_cmd_time;
+    now_cmd_time = ros::Time::now().toSec() - last_request;
+
     /*--------- Arm ---------*/
     if(cmd == 1)
     {
-        if(mavros_mode != "OFFBOARD")
-        { 
-            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-            {
-                ROS_INFO("Attempt to Set OFFBOARD");
-                if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
-                else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
-                mavros_state_monitor_time = ros::Time::now();
-            }                
-        }
-        else if(mavros_mode == "OFFBOARD" && !arm_mode)
-        {
-            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-            {
-                ROS_INFO("Attempt to Arm");
-                if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
-                else {ROS_ERROR("Fail to Arm!!!");}
-                mavros_state_monitor_time = ros::Time::now();
-            }
-        }
-        else {ROS_WARN("FLAG Fly!");}
+        // if(mavros_mode != "OFFBOARD")
+        // { 
+        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+        //     {
+        //         ROS_INFO("Attempt to Set OFFBOARD");
+        //         if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
+        //         else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
+        //         mavros_state_monitor_time = ros::Time::now();
+        //     }                
+        // }
+        // else if(mavros_mode == "OFFBOARD" && !arm_mode)
+        // {
+        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+        //     {
+        //         ROS_INFO("Attempt to Arm");
+        //         if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
+        //         else {ROS_ERROR("Fail to Arm!!!");}
+        //         mavros_state_monitor_time = ros::Time::now();
+        //     }
+        // }
+        // else {ROS_WARN("FLAG Fly!");}
 
-        mavros_msgs::AttitudeTarget att_cmd = fsm_ut::SetTargetRateAndTotalThrustCmd(0.0, 0.0, 0.0, 0.02);
-        setpoint_raw_att_pub.publish(att_cmd);
+        // mavros_msgs::AttitudeTarget att_cmd = fsm_ut::SetTargetRateAndTotalThrustCmd(0.0, 0.0, 0.0, 0.02);
+        // setpoint_raw_att_pub.publish(att_cmd);
     }
 
 
@@ -223,57 +237,57 @@ void Basic_FSM::Basic_Task()
     /*--------- Takeoff ---------*/
     else if(cmd == 3)
     {
-        if(mavros_mode != "OFFBOARD")
-        { 
-            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-            {
-                ROS_INFO("Attempt to Set OFFBOARD");
-                if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
-                else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
-                mavros_state_monitor_time = ros::Time::now();
-            }                
-        }
-        else if(mavros_mode == "OFFBOARD" && !arm_mode)
-        {
-            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-            {
-                ROS_INFO("Attempt to Arm");
-                if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
-                else {ROS_ERROR("Fail to Arm!!!");}
-                mavros_state_monitor_time = ros::Time::now();
-            }
-        }
-        else {ROS_WARN("FLAG Fly!");}
+        // if(mavros_mode != "OFFBOARD")
+        // { 
+        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+        //     {
+        //         ROS_INFO("Attempt to Set OFFBOARD");
+        //         if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
+        //         else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
+        //         mavros_state_monitor_time = ros::Time::now();
+        //     }                
+        // }
+        // else if(mavros_mode == "OFFBOARD" && !arm_mode)
+        // {
+        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+        //     {
+        //         ROS_INFO("Attempt to Arm");
+        //         if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
+        //         else {ROS_ERROR("Fail to Arm!!!");}
+        //         mavros_state_monitor_time = ros::Time::now();
+        //     }
+        // }
+        // else {ROS_WARN("FLAG Fly!");}
 
-        geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(0.0, 0.0, first_takeoff_height, 0.0);
-        setpoint_pos_pub.publish(pos_cmd);
+        // geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(0.0, 0.0, first_takeoff_height, 0.0);
+        // setpoint_pos_pub.publish(pos_cmd);
     }
 
 
     /*--------- Land ---------*/
     else if(cmd == 4)
     {
-        if(arm_mode && abs(fsm_cb::mavros_fcu_pos.z() - 0.05) < 0.05)
-        {
-            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-            {
-                ROS_INFO("Attempt to Disarm");
-                if(arming_cmd_client.call(disarm_cmd) && disarm_cmd.response.success) {ROS_WARN("Mode Disarm!");}
-                else {ROS_ERROR("Fail to Disarm!!!");}
-                mavros_state_monitor_time = ros::Time::now();
-            }
-        }
+        // if(arm_mode && abs(fsm_cb::mavros_fcu_pos.z() - 0.05) < 0.05)
+        // {
+        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+        //     {
+        //         ROS_INFO("Attempt to Disarm");
+        //         if(arming_cmd_client.call(disarm_cmd) && disarm_cmd.response.success) {ROS_WARN("Mode Disarm!");}
+        //         else {ROS_ERROR("Fail to Disarm!!!");}
+        //         mavros_state_monitor_time = ros::Time::now();
+        //     }
+        // }
         
-        if(!is_landing_in_progress)
-        {
-            landing_start_pos = Eigen::Vector3d(fsm_cb::mavros_fcu_pos.x(), fsm_cb::mavros_fcu_pos.y(), fsm_cb::mavros_fcu_pos.z());
-            is_landing_in_progress = true;
-        }
-        if(landing_start_pos.z() > 0.05) {landing_start_pos.z() -= 0.01;}
-        else {landing_start_pos.z() = 0.05;}
+        // if(!is_landing_in_progress)
+        // {
+        //     landing_start_pos = Eigen::Vector3d(fsm_cb::mavros_fcu_pos.x(), fsm_cb::mavros_fcu_pos.y(), fsm_cb::mavros_fcu_pos.z());
+        //     is_landing_in_progress = true;
+        // }
+        // if(landing_start_pos.z() > 0.05) {landing_start_pos.z() -= 0.01;}
+        // else {landing_start_pos.z() = 0.05;}
 
-        geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(landing_start_pos.x(), landing_start_pos.y(), landing_start_pos.z(), 0.0);
-        setpoint_pos_pub.publish(pos_cmd);
+        // geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(landing_start_pos.x(), landing_start_pos.y(), landing_start_pos.z(), 0.0);
+        // setpoint_pos_pub.publish(pos_cmd);
     }
 
 
@@ -286,3 +300,5 @@ void Basic_FSM::Basic_Task()
 
     else {return;}
 }
+
+} //namespace fsm_ut

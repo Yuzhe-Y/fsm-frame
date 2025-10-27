@@ -1,7 +1,7 @@
 {
     "acados_include_path": "/home/yuzhe-yang/NewDisk/acados/include",
     "acados_lib_path": "/home/yuzhe-yang/NewDisk/acados/lib",
-    "code_export_directory": "/home/yuzhe-yang/NewDisk/acados_new_fsm_ws/src/fsm_ctrl/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code",
+    "code_export_directory": "/home/yuzhe-yang/NewDisk/fsm_frame_ws/src/fsm_ctrl/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code",
     "constraints": {
         "C": [],
         "C_e": [],

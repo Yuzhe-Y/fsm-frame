@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-07 23
+ * @LastEditTime: 2025-10-27 09
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/fsm_utils/basic_fsm.hpp
  * @Description: 
  * 
@@ -73,6 +73,20 @@
 
 #include "const_params.h"
 
+// 临时增加控制头文件
+#include "acados/utils/print.h"
+#include "acados/utils/math.h"
+#include "acados_c/ocp_nlp_interface.h"
+#include "acados_c/external_function_interface.h"
+#include "acados_solver_w_totalF_nmpc.h"
+
+#include "blasfeo_d_aux_ext_dep.h"
+
+#include "const_params.h"
+
+namespace fsm_ut
+{
+
 class Basic_FSM
 {
     public:
@@ -84,6 +98,7 @@ class Basic_FSM
         /*--------- user UDP ---------*/
         bool is_udp_enable;
         int cmd;
+        int last_cmd;
 
         /*--------- mode ---------*/
         std::string mavros_mode;
@@ -94,8 +109,6 @@ class Basic_FSM
         mavros_msgs::CommandBool arm_cmd, disarm_cmd;
 
         /*--------- control ---------*/
-        ros::Timer controller_timer;
-
         fsm_ut::Controller controller;
         const_params::Nmpc_Params nmpc_params;
 
@@ -121,33 +134,40 @@ class Basic_FSM
         /*--------- ROS loop ---------*/
         double last_cmd_time;
         double now_cmd_time;
+        double last_request;           //主程序开始时间
         ros::Time mavros_state_monitor_time;
-        ros::Rate rate;
 
         /*--------- landing variable ---------*/
         Eigen::Vector3d landing_start_pos;
         int landing_step_count;
         bool is_landing_in_progress;
 
+        /*--------- Timer ---------*/
+        ros::Timer controller_timer;
+
         /*--------- constructor ---------*/
-        Basic_FSM(ros::NodeHandle &nh);
+        Basic_FSM();
         ~Basic_FSM() = default;
 
         /*--------- main ---------*/
         void UDPListen(const uint16_t cport);
+        void Basic_Init(ros::NodeHandle &nh);
         void Basic_Task();
         virtual void FLAG_Task() = 0;
 };
 
-
 class FLAG_FSM: public Basic_FSM
 {
     public:
-        FLAG_FSM(ros::NodeHandle &nh);
+        FLAG_FSM();
         ~FLAG_FSM() = default;
 
         void FLAG_Task() override;
 };
+
+}
+
+extern fsm_ut::FLAG_FSM fsm;
 
 
 #endif
