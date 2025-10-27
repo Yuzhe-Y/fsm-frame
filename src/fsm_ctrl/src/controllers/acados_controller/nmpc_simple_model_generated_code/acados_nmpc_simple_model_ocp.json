@@ -93,7 +93,7 @@
         "lsphi_0": [],
         "lsphi_e": [],
         "ubu": [
-            30.0,
+            26.0,
             1.0,
             1.0,
             1.0
@@ -912,7 +912,7 @@
         "nlp_solver_warm_start_first_qp_from_nlp": false,
         "num_threads_in_batch_solve": 1,
         "print_level": 0,
-        "qp_solver": "PARTIAL_CONDENSING_HPIPM",
+        "qp_solver": "FULL_CONDENSING_QPOASES",
         "qp_solver_cond_N": 20,
         "qp_solver_cond_block_size": null,
         "qp_solver_cond_ric_alg": 1,

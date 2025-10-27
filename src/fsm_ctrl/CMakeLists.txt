@@ -115,7 +115,7 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 set(NMPC_SIMPLE_MODEL_CODE_DIR
-  ${PROJECT_SOURCE_DIR}/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code
+  ${PROJECT_SOURCE_DIR}/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code
 )
 
 catkin_package(
@@ -190,10 +190,12 @@ file(GLOB nmpc_simple_model_solver
 add_library(
   NmpcCtrl
   src/controllers/ipopt_controller/nmpc_controller.cpp
-  ${NMPC_SIMPLE_MODEL_SOLVER}
 )
 
-target_link_libraries(NmpcCtrl acados blasfeo)
+add_library(ocp_shared_lib SHARED ${nmpc_simple_model_solver})
+target_link_libraries(ocp_shared_lib acados blasfeo)
+
+target_link_libraries(NmpcCtrl ocp_shared_lib)
 
 add_library(
   DfbcCtrl

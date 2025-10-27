@@ -84,10 +84,12 @@ INCLUDE_PATH = /home/yuzhe-yang/NewDisk/acados/include
 LIB_PATH = /home/yuzhe-yang/NewDisk/acados/lib
 
 # preprocessor flags for make's implicit rules
+CPPFLAGS += -DACADOS_WITH_QPOASES
 CPPFLAGS+= -I$(INCLUDE_PATH)
 CPPFLAGS+= -I$(INCLUDE_PATH)/acados
 CPPFLAGS+= -I$(INCLUDE_PATH)/blasfeo/include
 CPPFLAGS+= -I$(INCLUDE_PATH)/hpipm/include
+CPPFLAGS+= -I $(INCLUDE_PATH)/qpOASES_e/
 
 
 # define the c-compiler flags for make's implicit rules
@@ -105,7 +107,7 @@ LDLIBS+= -lacados
 LDLIBS+= -lhpipm
 LDLIBS+= -lblasfeo
 LDLIBS+= -lm
-LDLIBS+= 
+LDLIBS+= -lqpOASES_e
 
 # libraries
 LIBACADOS_SOLVER=libacados_solver_w_totalF_nmpc.so

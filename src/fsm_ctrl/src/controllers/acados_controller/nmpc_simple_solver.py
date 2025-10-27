@@ -179,7 +179,7 @@ class AcadosMPCSolver:
         # ‘PARTIAL_CONDENSING_HPIPM’, ‘FULL_CONDENSING_QPOASES’, ‘FULL_CONDENSING_HPIPM’,
         # ‘PARTIAL_CONDENSING_QPDUNES’, ‘PARTIAL_CONDENSING_OSQP’, ‘FULL_CONDENSING_DAQP’).
         # Default: ‘PARTIAL_CONDENSING_HPIPM’.
-        solver_options.qp_solver = 'PARTIAL_CONDENSING_HPIPM'
+        solver_options.qp_solver = 'FULL_CONDENSING_QPOASES'
         # NLP solver. String in (‘SQP’, ‘SQP_RTI’, ‘DDP’). Default: ‘SQP_RTI’.
         solver_options.nlp_solver_type = 'SQP_RTI'
         # Hessian approximation. String in (‘GAUSS_NEWTON’, ‘EXACT’). Default: ‘GAUSS_NEWTON’.
@@ -375,7 +375,7 @@ class AcadosMPCSolver:
             print(f'MPC Solver failed with status {status}')
             return None
 
-        return self.controls
+        return self.controls, self.states
 
     def compute_control_action(
             self,
@@ -468,7 +468,7 @@ if __name__ == '__main__':
             angular_velocity_weight=0.1*np.ones(3)
         ),
         lbu=np.array([0.2, -1.0, -1.0, -1.0]),
-        ubu=np.array([30.0, 1.0, 1.0, 1.0]),
+        ubu=np.array([26.0, 1.0, 1.0, 1.0]),
         p=np.array([1.0, 0.0, 0.0, 0.0])  # 参考四元数 [qw, qx, qy, qz]
     )
 
@@ -500,32 +500,34 @@ if __name__ == '__main__':
     reference_final[3:6] = np.array([0.0, 0.0, 0.0])              # Linear velocity reference
     reference_final[6:10] = np.array([1.0, 0.0, 0.0, 0.0])        # Orientation reference
 
-    for i in range(20):
-        start_time = time.time()
+    # for i in range(20):
+    start_time = time.time()
         
-        state = np.array([
-        0.0, 0.0, i*0.1,        # Position
-        0.0, 0.0, 0.0,        # Linear velocity
-        1.0, 0.0, 0.0, 0.0    # Orientation (quaternion)
-    ])
+    state = np.array([
+    0.0, 0.0, 0.0,        # Position
+    0.0, 0.0, 0.0,        # Linear velocity
+    1.0, 0.0, 0.0, 0.0    # Orientation (quaternion)
+])
 
-        u = mpc.evaluate(
-            state,
-            reference_intermediate,
-            reference_final
-        )
+    u, x = mpc.evaluate(
+        state,
+        reference_intermediate,
+        reference_final
+    )
 
-        end_time = time.time()
+    end_time = time.time()
 
-        # 计算执行时间（以毫秒为单位）
-        execution_time_ms = (end_time - start_time) * 1000
+    # 计算执行时间（以毫秒为单位）
+    execution_time_ms = (end_time - start_time) * 1000
 
-        # 打印结果和执行时间
-        # if u is not None:
-        #     print("Computed control actions:")
-        #     # print(f"First control action u0: {u[0]}")
-        #     print(f"Control action u: {u}")
-        #     print(f"All control actions shape: {u.shape}")
-        # else:
-        #     print("Failed to compute control actions")
-        print(f"Execution time: {execution_time_ms:.2f} ms")
+    # 打印结果和执行时间
+    if u is not None:
+        print("Computed control actions:")
+        # print(f"First control action u0: {u[0]}")
+        print(f"Control action u: {u}")
+        print(f"All control actions shape: {u.shape}")
+        print(f"State x: {x}")
+        print(f"All state shape: {x.shape}")
+    else:
+        print("Failed to compute control actions")
+    print(f"Execution time: {execution_time_ms:.2f} ms")

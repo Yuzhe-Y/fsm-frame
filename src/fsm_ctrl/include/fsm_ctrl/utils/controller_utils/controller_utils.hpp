@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-24 19
+ * @LastEditTime: 2025-10-27 10
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/controller_utils/controller_utils.hpp
  * @Description: 
  * 
@@ -60,7 +60,7 @@ namespace fsm_ut
     struct AcadosController
     {
         w_totalF_nmpc_solver_capsule *acados_ocp_capsule;
-        int N = const_params::W_TOTALF_PARAMS.NP; //预测步数
+        const int N = const_params::W_TOTALF_PARAMS.NP; //预测步数
         double* new_time_steps;
         int status;
 
@@ -82,9 +82,9 @@ namespace fsm_ut
         double elapsed_time;
         int sqp_iter;
 
-        double xtraj[const_params::W_TOTALF_PARAMS.NX * (N+1)];
-        double utraj[const_params::W_TOTALF_PARAMS.NU * N];
-    }
+        // double xtraj[const_params::W_TOTALF_PARAMS.NX * (N+1)];
+        // double utraj[const_params::W_TOTALF_PARAMS.NU * N];
+    };
 
     void SetControllerFdb(Controller& controller);
 
