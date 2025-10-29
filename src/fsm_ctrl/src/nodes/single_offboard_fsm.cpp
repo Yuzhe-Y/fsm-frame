@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-24 11
+ * @LastEditTime: 2025-10-29 18
  * @FilePath: /fsm_ctrl/src/nodes/single_offboard_fsm.cpp
  * @Description: 
  * 
@@ -37,8 +37,10 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         ros::spinOnce();
+        // if(fsm.real_environment)
+        // {}
         fsm.Basic_Task();
-        // fsm.FLAG_Task();
+        fsm.FLAG_Task();
         rate.sleep();
     }
     return 0;

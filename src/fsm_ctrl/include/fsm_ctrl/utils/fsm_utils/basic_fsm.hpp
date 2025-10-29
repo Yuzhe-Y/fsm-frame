@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-27 21
+ * @LastEditTime: 2025-10-29 18
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/fsm_utils/basic_fsm.hpp
  * @Description: 
  * 
@@ -94,6 +94,7 @@ class Basic_FSM
         double first_takeoff_height;
         double hover_thrust_percentage;
         bool controller_work_enable;
+        bool real_environment;
 
         /*--------- user UDP ---------*/
         bool is_udp_enable;
