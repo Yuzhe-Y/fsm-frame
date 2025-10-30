@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-27 21
+ * @LastEditTime: 2025-10-30 10
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/controller_utils/controller_utils.hpp
  * @Description: 
  * 
@@ -85,13 +85,15 @@ namespace fsm_ut
         double xtraj[const_params::W_TOTALF_PARAMS.NX * (const_params::W_TOTALF_PARAMS.N+1)];
         double utraj[const_params::W_TOTALF_PARAMS.NU * const_params::W_TOTALF_PARAMS.N];
         double params[const_params::W_TOTALF_PARAMS.NP];
+
+        Thr_LSE thr_est;
     };
 
     void SetControllerFdb(Controller& controller);
 
     void IpoptNmpcWandTotalFControllerInit(ros::NodeHandle& nh, NMPC_Ctrller_simple& nmpc_controller);
     void DFBCControllerInit(ros::NodeHandle& nh, DFBC_Controller& dfbc_controller);
-    void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleController& acados_controller);
+    void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleController& acados_controller, double ctrl_rate);
 
 } // namespace fsm_ut
 #endif

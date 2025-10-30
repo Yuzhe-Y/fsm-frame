@@ -1,6 +1,6 @@
 controller_basic_params:
   use_defalut_controller: true
-  defalut_controller_type: 1           # 0: NMPC(ACADOS)  1: NMPC(IPOPT)   2: DFBC 
+  defalut_controller_type: 0           # 0: NMPC(ACADOS)  1: NMPC(IPOPT)   2: DFBC 
                                        # 3: PID           4: PX4_pose_mode
 
   nmpc_controller_type: 0              # 0: w_and_totalF  1: dForce
@@ -10,26 +10,28 @@ controller_basic_params:
   first_takeoff_height: 0.4
 
 acados_parameters:
-  max_w_limit: 0.5
-  max_acc_z_limit: 15.0
+  ctrl_rate: 100.0
+
+  max_w_limit: 1.0
+  max_acc_z_limit: 26.0
   max_force_limit: 10.0
   max_dforce_limit: 5.0
 
-  min_w_limit: -0.5
-  min_acc_z_limit: 0.0
+  min_w_limit: -1.0
+  min_acc_z_limit: 0.2
   min_force_limit: -10.0
   min_dforce_limit: -5.0
 
   w_and_totalF_params:
-    Q_pos_x: 1.0
-    Q_pos_y: 1.0
-    Q_pos_z: 1.0
-    Q_vel_x: 0.1
-    Q_vel_y: 0.1
-    Q_vel_z: 0.1
-    Q_quat_x: 0.01
-    Q_quat_y: 0.01
-    Q_quat_z: 0.01
+    Q_pos_x: 40.0
+    Q_pos_y: 40.0
+    Q_pos_z: 40.0
+    Q_vel_x: 1.0
+    Q_vel_y: 1.0
+    Q_vel_z: 1.0
+    Q_quat_x: 8.0
+    Q_quat_y: 8.0
+    Q_quat_z: 8.0
     R_w_x: 0.1
     R_w_y: 0.1
     R_w_z: 0.1

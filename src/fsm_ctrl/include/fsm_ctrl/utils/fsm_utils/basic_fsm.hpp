@@ -153,7 +153,7 @@ class Basic_FSM
 
         /*--------- main ---------*/
         void UDPListen(const uint16_t cport);
-        void Basic_Init(ros::NodeHandle &nh);
+        void Basic_Init(ros::NodeHandle &nh, ros::Rate rate);
         void Basic_Task();
         virtual void FLAG_Task() = 0;
 };

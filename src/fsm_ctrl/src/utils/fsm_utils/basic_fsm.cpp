@@ -5,7 +5,7 @@ namespace fsm_ut
 
 Basic_FSM::Basic_FSM(){}
 
-void Basic_FSM::Basic_Init(ros::NodeHandle &nh)                               
+void Basic_FSM::Basic_Init(ros::NodeHandle &nh, ros::Rate rate)                               
 {
     /*--------- Normal Publisher ---------*/
     setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
@@ -33,9 +33,9 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh)
             if(controller.nmpc_controller_type == 0) // w_and_totalF
             {
                 double ctrl_rate, ctrl_duration;
-                nh.param("/single_offboard_fsm/ipopt_parameters/ctrl_rate", ctrl_rate, 50.0);
+                nh.param("/single_offboard_fsm/acados_parameters/ctrl_rate", ctrl_rate, 50.0);
                 ctrl_duration = 1.0 / ctrl_rate;
-                fsm_ut::AcadosNmpcWandTotalFControllerInit(nh, acados_simple_controller);
+                fsm_ut::AcadosNmpcWandTotalFControllerInit(nh, acados_simple_controller, ctrl_rate);
                 controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
             }
             else if(controller.nmpc_controller_type == 1) // Force
@@ -101,8 +101,8 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh)
 
     last_request = ros::Time::now().toSec();
 
-    // if(real_environment)
-    // {fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);}
+    if(real_environment)
+    {fsm_ut::InitPX4(offboard_mode, land_mode, arm_cmd, disarm_cmd, setpoint_pos_pub, rate);}
 }
 
 

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-29 18
+ * @LastEditTime: 2025-10-29 19
  * @FilePath: /fsm_ctrl/src/nodes/single_offboard_fsm.cpp
  * @Description: 
  * 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     std::thread udp_thread(&fsm_ut::Basic_FSM::UDPListen, &fsm, 12001);
     udp_thread.detach();
 
-    fsm.Basic_Init(nh);
+    fsm.Basic_Init(nh, rate);
     
     while (ros::ok())
     {
