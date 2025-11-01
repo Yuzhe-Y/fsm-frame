@@ -1,6 +1,6 @@
 comm_node:
   mocap_frame: 0              # 0: Z-up  1: Y-up
-  mavros_ext_odom_source: 1   # 0: mocap 1: lidar 2: camera
+  mavros_ext_odom_source: 0   # 0: mocap 1: lidar 2: camera
   mavros_ekf_pos_err_max: 0.05
   mavros_ekf_yaw_err_max: 3
 

@@ -163,6 +163,7 @@ int main(int argc, char **argv)
             mavros_ext_odom_pos = fsm_cb::mocap_pos;
             mavros_ext_odom_quat = fsm_cb::mocap_quat;
             mavros_ext_odom_yaw = fsm_ut::QuatToEuler(mavros_ext_odom_quat).z();
+            std::cout << "mavros_ext_odom_yaw: " << mavros_ext_odom_yaw <<std::endl;
         }
         else if(mavros_ext_odom_source == 1) // lidar
         {
@@ -182,7 +183,8 @@ int main(int argc, char **argv)
             continue;
         }
 
-        CMD_Print();
+        // CMD_Print();
+        std::cout << "fsm_cb::mavros_fcu_pos(0):  " << fsm_cb::mavros_fcu_pos(0) << std::endl;
         if(cmd == 10) {break;}
         ros::spinOnce();
         rate.sleep();

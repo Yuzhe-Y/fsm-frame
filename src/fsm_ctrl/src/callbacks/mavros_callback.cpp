@@ -81,6 +81,7 @@ namespace fsm_cb
         }
 
         mavros_fcu_euler = fsm_ut::QuatToEuler(mavros_fcu_quat);
+        std::cout << "pose:" << mavros_fcu_pos.x() << std::endl;
     }
 
     /**

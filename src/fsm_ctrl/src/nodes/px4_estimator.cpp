@@ -35,12 +35,23 @@ int main(int argc, char **argv)
     
     /*    subscriber    */
     ros::Subscriber mocap_sub = nh.subscribe<geometry_msgs::PoseStamped>
-        ("pose", 10, fsm_cb::MocapOdomCallback);
+        ("/vrpn_client_node/drone0/pose", 10, fsm_cb::MocapOdomCallback);
     ros::Subscriber lidar_sub = nh.subscribe<nav_msgs::Odometry>
         ("odom", 10, fsm_cb::LidarOdomCallback);    
     ros::Subscriber camera_sub = nh.subscribe<nav_msgs::Odometry>
         ("odom", 10, fsm_cb::CameraOdomCallback);
-
+    ros::Subscriber mavros_battery_sub = nh.subscribe<sensor_msgs::BatteryState>
+        ("/mavros/battery", 10, fsm_cb::MavrosBatteryCallback);
+    ros::Subscriber mavros_fcu_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>
+        ("/mavros/local_position/pose", 10, fsm_cb::MavrosFcuPoseCallback);
+    ros::Subscriber mavros_fcu_vel_sub = nh.subscribe<geometry_msgs::TwistStamped>
+        ("/mavros/local_position/velocity_local", 10, fsm_cb::MavrosFcuVelCallback);
+    ros::Subscriber mavros_imu_sub = nh.subscribe<sensor_msgs::Imu>
+        ("/mavros/imu/data", 10, fsm_cb::MavrosImuCallback);
+    ros::Subscriber mavros_esc_sub = nh.subscribe<mavros_msgs::ESCStatus>
+        ("/mavros/esc/status", 10, fsm_cb::MavrosEscCallback);
+    ros::Subscriber mavros_rc_sub = nh.subscribe<mavros_msgs::RCIn>
+        ("/mavros/rc/in", 10, fsm_cb::MavrosRcCallback);
     ros::Rate rate(100.0);
     while(ros::ok())
     {
