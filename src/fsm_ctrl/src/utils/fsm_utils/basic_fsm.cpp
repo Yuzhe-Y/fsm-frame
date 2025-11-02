@@ -17,6 +17,22 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh, ros::Rate rate)
     setpoint_raw_att_pub = nh.advertise<mavros_msgs::AttitudeTarget>
         ("/mavros/setpoint_raw/attitude", 10);
 
+    /*--------- Normal Subscriber ---------*/
+    fusion_sub = nh.subscribe<std_msgs::Bool>
+        ("/fsm_ctrl/ekf_ready", 1, fsm_cb::MavrosFusionCallback);
+    mavros_battery_sub = nh.subscribe<sensor_msgs::BatteryState>
+        ("/mavros/battery", 10, fsm_cb::MavrosBatteryCallback);
+    mavros_fcu_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>
+        ("/mavros/local_position/pose", 10, fsm_cb::MavrosFcuPoseCallback);
+    mavros_fcu_vel_sub = nh.subscribe<geometry_msgs::TwistStamped>
+        ("/mavros/local_position/velocity_local", 10, fsm_cb::MavrosFcuVelCallback);
+    mavros_imu_sub = nh.subscribe<sensor_msgs::Imu>
+        ("/mavros/imu/data", 10, fsm_cb::MavrosImuCallback);
+    mavros_esc_sub = nh.subscribe<mavros_msgs::ESCStatus>
+        ("/mavros/esc/status", 10, fsm_cb::MavrosEscCallback);
+    mavros_rc_sub = nh.subscribe<mavros_msgs::RCIn>
+        ("/mavros/rc/in", 10, fsm_cb::MavrosRcCallback);
+
     /*--------- Timer&&Controller_utils&&Controller Publisher ---------*/
     nh.param("/single_offboard_fsm/controller_basic_params/use_defalut_controller", controller.use_defalut_controller, true);
     nh.param("/single_offboard_fsm/controller_basic_params/defalut_controller_type", controller.defalut_controller_type, 0);

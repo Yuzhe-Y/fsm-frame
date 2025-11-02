@@ -1,8 +1,8 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-07 23
- * @FilePath: /fsm_ctrl/include/fsm_ctrl/callbacks/mavros_callback.hpp
+ * @LastEditTime: 2025-11-02 10
+ * @FilePath: /fsm_ctrl/include/fsm_ctrl/callbacks/fsm_callback.hpp
  * @Description: 
  * 
  * Copyright (c) 2025 by yuzhe-yang, All Rights Reserved. 
@@ -27,7 +27,7 @@
 
 namespace fsm_cb
 {
-    extern bool mavros_ekf_ready;
+    extern bool is_ekf_converge;
 
     extern sensor_msgs::BatteryState mavros_battery;
     extern mavros_msgs::State mavros_state;
@@ -51,7 +51,7 @@ namespace fsm_cb
     extern bool is_need_rot;          //检测第一帧飞控反馈四元数qw是否为-1，是为1，不是为0，如果是则执行四元数反转工作
 
 
-    void MavrosEkfReadyCallback(const std_msgs::Bool::ConstPtr &msg);
+    void MavrosFusionCallback(const std_msgs::Bool::ConstPtr &msg);
 
     void MavrosBatteryCallback(const sensor_msgs::BatteryState::ConstPtr &msg);
     void MavrosFcuPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);

@@ -214,10 +214,17 @@ add_library(
 
 add_library(
   MavCb
-  src/callbacks/mavros_callback.cpp
+  src/callbacks/fsm_callback.cpp
 )
 
 target_link_libraries(MavCb MathUtils)
+
+add_library(
+  UserCmdCb
+  src/callbacks/user_cmd_callback.cpp
+)
+
+target_link_libraries(UserCmdCb MathUtils)
 
 add_library(
   TimerCb
@@ -251,7 +258,7 @@ add_library(
 target_link_libraries(FsmUtils DfbcCtrl NmpcCtrl TimerCb ControllerUtils MathUtils)
 
 add_executable(swarm_user_cmd src/nodes/swarm_user_cmd.cpp)
-target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb MavCb MathUtils)
+target_link_libraries(swarm_user_cmd ${catkin_LIBRARIES} boost_system boost_filesystem UserCmdCb)
 
 add_executable(px4_estimator src/nodes/px4_estimator.cpp)
 target_link_libraries(px4_estimator MathUtils ${catkin_LIBRARIES} boost_system boost_filesystem ExtOdomCb CommUtils MathUtils MavCb)

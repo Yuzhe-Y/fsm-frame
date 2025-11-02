@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-09-24 21
+ * @LastEditTime: 2025-11-02 11
  * @FilePath: /fsm_ctrl/src/callbacks/external_odom_callback.cpp
  * @Description: 
  * 
@@ -28,6 +28,11 @@ namespace fsm_cb
     Eigen::Vector3d camera_vel;                     
     Eigen::Quaterniond camera_quat;
     Eigen::Vector3d camera_euler;
+
+    Eigen::Vector3d ext_fcu_pos;
+    Eigen::Vector3d ext_fcu_vel;                     
+    Eigen::Quaterniond ext_fcu_quat;
+    Eigen::Vector3d ext_fcu_euler;
 
     ros::Time ext_odom_stamp;
     bool is_source_new = false; //数据更新标志
@@ -111,5 +116,17 @@ namespace fsm_cb
         camera_quat = Eigen::Quaterniond(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
         camera_euler = fsm_ut::QuatToEuler(camera_quat);
         is_source_new = true;
+    }
+
+    /**
+     * @description: 
+     * @param {geometry_msgs::PoseStamped::ConstPtr} &msg
+     * @return {*}
+     */
+    void ExtFcuPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
+    {
+        ext_fcu_pos = Eigen::Vector3d(msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
+        ext_fcu_quat = Eigen::Quaterniond(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
+        ext_fcu_euler = fsm_ut::QuatToEuler(ext_fcu_quat);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 18
+ * @LastEditTime: 2025-11-02 11
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/callbacks/external_odom_callback.hpp
  * @Description: 
  * 
@@ -45,12 +45,17 @@ namespace fsm_cb
     extern Eigen::Quaterniond camera_quat;
     extern Eigen::Vector3d camera_euler;
 
+    extern Eigen::Vector3d ext_fcu_pos;                    
+    extern Eigen::Quaterniond ext_fcu_quat;
+    extern Eigen::Vector3d ext_fcu_euler;
+
     extern ros::Time ext_odom_stamp;
     extern bool is_source_new;
 
     void MocapOdomCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
     void LidarOdomCallback(const nav_msgs::Odometry::ConstPtr &msg);
     void CameraOdomCallback(const nav_msgs::Odometry::ConstPtr &msg);
+    void ExtFcuPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 }
 
 #endif // __EXTERNAL_ODOM_CALLBACK_H__

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-29 18
+ * @LastEditTime: 2025-11-02 11
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/fsm_utils/basic_fsm.hpp
  * @Description: 
  * 
@@ -61,7 +61,7 @@
 #include <eigen3/Eigen/Dense>
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 #include "fsm_ctrl/utils/controller_utils/controller_utils.hpp"
-#include "fsm_ctrl/callbacks/mavros_callback.hpp"
+#include "fsm_ctrl/callbacks/fsm_callback.hpp"
 #include "fsm_ctrl/callbacks/external_odom_callback.hpp"
 #include "fsm_ctrl/callbacks/timer_callback.hpp"
 #include "fsm_ctrl/controllers/ipopt_controller/nmpc_controller.hpp"
@@ -128,6 +128,15 @@ class Basic_FSM
         ros::Publisher setpoint_raw_local_pub;
         ros::Publisher setpoint_raw_att_pub;
         ros::Publisher nmpc_state_pub;
+
+        /*--------- ROS subscriber ---------*/
+        ros::Subscriber fusion_sub;
+        ros::Subscriber mavros_battery_sub;
+        ros::Subscriber mavros_fcu_pose_sub;
+        ros::Subscriber mavros_fcu_vel_sub;
+        ros::Subscriber mavros_imu_sub;
+        ros::Subscriber mavros_esc_sub;
+        ros::Subscriber mavros_rc_sub;
 
         /*--------- ROS client ---------*/
         ros::ServiceClient arming_cmd_client;

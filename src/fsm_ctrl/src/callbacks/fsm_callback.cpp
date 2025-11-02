@@ -1,17 +1,17 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-06 19
- * @FilePath: /fsm_ctrl/src/callbacks/mavros_callback.cpp
+ * @LastEditTime: 2025-11-02 11
+ * @FilePath: /fsm_ctrl/src/callbacks/fsm_callback.cpp
  * @Description: 
  * 
  * Copyright (c) 2025 by yuzhe-yang, All Rights Reserved. 
  */
-#include "fsm_ctrl/callbacks/mavros_callback.hpp"
+#include "fsm_ctrl/callbacks/fsm_callback.hpp"
 
 namespace fsm_cb
 {
-    bool mavros_ekf_ready;
+    bool is_ekf_converge;
 
     sensor_msgs::BatteryState mavros_battery;
     mavros_msgs::State mavros_state;
@@ -34,13 +34,13 @@ namespace fsm_cb
     bool is_need_rot;
 
     /**
-     * @description: 
-     * @param {std_msgs::Bool::ConstPtr} &msg
-     * @return {*}
+     * @brief  fusion convergence subscriber callback
+     * @param  msg from px4_estimator
+     * @return NULL
      */
-    void MavrosEkfReadyCallback(const std_msgs::Bool::ConstPtr &msg)
+    void MavrosFusionCallback(const std_msgs::Bool::ConstPtr &msg)
     {
-        mavros_ekf_ready = msg->data;
+        is_ekf_converge = msg->data;
     }
 
     /**
@@ -125,4 +125,4 @@ namespace fsm_cb
     {
         mavros_state = *msg;
     }
-} // namespace fsm_ctrl_mavros_callbacks
+} // namespace fsm_ctrl_fsm_callbacks

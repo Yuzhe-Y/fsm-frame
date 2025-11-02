@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-07-15 20
+ * @LastEditTime: 2025-11-02 10
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/nodes/px4_estimator.hpp
  * @Description: 
  * 
@@ -22,6 +22,5 @@
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 #include "fsm_ctrl/callbacks/external_odom_callback.hpp"
 #include "fsm_ctrl/utils/communication_utils/px4_command.hpp"
-#include "fsm_ctrl/callbacks/mavros_callback.hpp"
 
 #endif
