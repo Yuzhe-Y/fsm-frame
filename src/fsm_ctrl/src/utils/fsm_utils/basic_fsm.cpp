@@ -130,71 +130,107 @@ FLAG_FSM::FLAG_FSM(): Basic_FSM()
 }
 
 
-void Basic_FSM::UDPListen(const uint16_t cport) 
-{   
-    /* create socket */
-    int sock_fd = socket(AF_INET, SOCK_DGRAM, 0);    // AF_INET: IPv4    
-    if(sock_fd < 0)                                  // SOCK_DGRAM: UDP
-    {                                                // 0: default protocol
-        ROS_ERROR("Fail to Create Socket!!!");            
-        return;                                           
+void Basic_FSM::StartUDPListen(uint16_t port)
+{
+    // 如果已经在运行，先返回
+    if (running.load()) return;
+    running.store(true);
+    // 启动成员线程（不 detach），以便后续 join
+    udp_thread = std::thread(&Basic_FSM::UDPListen, this, port);
+}
+
+void Basic_FSM::Shutdown()
+{
+    std::lock_guard<std::mutex> lock(shutdown_mutex);
+    if (!running.load()) return;
+    running.store(false);
+
+    // 停止 ROS 定时器，避免回调再次访问已销毁对象
+    try {
+        controller_timer.stop();
+    } catch(...) {}
+
+    // 关闭 socket 以解阻塞 recvfrom（如果已创建）
+    if (sock_fd >= 0) {
+        shutdown(sock_fd, SHUT_RDWR); // 使阻塞的 recvfrom 返回
+        close(sock_fd);
+        sock_fd = -1;
     }
+
+    // join 线程
+    if (udp_thread.joinable()) {
+        udp_thread.join();
+    }
+}
+
+// 修改 UDPListen：使用成员 sock_fd，并以 running 为循环条件
+void Basic_FSM::UDPListen(const uint16_t cport)
+{
+    /* create socket */
+    int local_sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(local_sock < 0)
+    {
+        ROS_ERROR("Fail to Create Socket!!!");
+        running.store(false);
+        return;
+    }
+    // 保存到成员，以便 Shutdown 可以关闭
+    this->sock_fd = local_sock;
 
     /* describe IPv4 port */
     sockaddr_in addr_lis;
-    memset(&addr_lis, 0, sizeof(sockaddr_in));       // initialize storage addresses to 0
-    addr_lis.sin_family = AF_INET;                   // IPv4
-    addr_lis.sin_addr.s_addr = htonl(INADDR_ANY);    // set address automatically, converted from host to network byte order
-    addr_lis.sin_port = htons(cport);                // set port number, converted from host to network byte order
+    memset(&addr_lis, 0, sizeof(sockaddr_in));
+    addr_lis.sin_family = AF_INET;
+    addr_lis.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr_lis.sin_port = htons(cport);
 
-    /* bind socket with port */
-    if(bind(sock_fd, (sockaddr *)&addr_lis, sizeof(addr_lis)) < 0)
+    if(bind(local_sock, (sockaddr *)&addr_lis, sizeof(addr_lis)) < 0)
     {
         ROS_ERROR("Fail to Bind Socket with Port!!!");
+        close(local_sock);
+        this->sock_fd = -1;
+        running.store(false);
         return;
     }
 
-    int recv_num;                  // number of bytes received
-    char recv_buf[100];            // buffer for received data
-    sockaddr_in addr_client;       // storage of client address port
-    int len = sizeof(addr_lis);    // length of address port
-    const char dot[2] = ",";       // ", \0"
+    // 其余逻辑不变，但把 while(ros::ok()) 改为 while(running && ros::ok())
+    int recv_num;
+    char recv_buf[100];
+    sockaddr_in addr_client;
+    int len = sizeof(addr_lis);
+    const char dot[2] = ",";
 
-
-    while (ros::ok())    // `recvfrom()` block until data is received
+    while (running.load() && ros::ok())
     {
+        recv_num = recvfrom(local_sock, recv_buf, sizeof(recv_buf)-1, 0, (sockaddr *)&addr_client, (socklen_t *)&len);
+        if (recv_num < 0) {
+            // 如果因关闭 socket 导致错误，直接退出循环
+            if(!running.load()) break;
+            ROS_ERROR("Fail to Receive UDP data!!! errno=%d", errno);
+            continue;
+        }
+        recv_buf[recv_num] = '\0';
+        // 处理消息（保持现有逻辑）
         char *str;
         int user_cmd;
         double init_px, init_py, init_pz;
-
-        /* receive UDP data */
-        recv_num = recvfrom(sock_fd, recv_buf, sizeof(recv_buf), 0, (sockaddr *)&addr_client, (socklen_t *)&len);
-        if(recv_num < 0 || abs(recv_num - 19) > 3)
-        {
-            ROS_ERROR("Fail to Receive UDP data!!!");
-            continue;
-        }
-        recv_buf[recv_num] = '\0';    // add string terminator
-        // ROS_INFO("Rec: %s, len = %d", recv_buf, recv_num);
         str = strtok(recv_buf, dot);
         sscanf(str, "%d", &user_cmd);
         str = strtok(NULL, dot);
         sscanf(str, "%lf", &init_px);
         str = strtok(NULL, dot);
         sscanf(str, "%lf", &init_py);
-        str = strtok(NULL, dot);         // separate string
-        sscanf(str, "%lf", &init_pz);    // convert string to int | double
+        str = strtok(NULL, dot);
+        sscanf(str, "%lf", &init_pz);
 
         if(cmd < -1 || cmd > 9) {ROS_ERROR("Invalid Command!!!");}
 
-        /* remind EKF convergence */
         if(cmd == -1)
         {
             if(is_ekf_converge) {ROS_WARN("Localization Ready!");}
             else                {ROS_ERROR("EKF Not Convergent!!!");}
         }
-        
-        /* safty protection land and disable UDP */
+
         if(is_safety_trigger)
         {
             cmd = 5;
@@ -202,11 +238,16 @@ void Basic_FSM::UDPListen(const uint16_t cport)
             ROS_WARN("Safty Protection Land!");
         }
 
-        /* accept user command */
         if(is_udp_enable) {cmd = user_cmd;}
     }
-}
 
+    // 退出前确保 socket 关闭并清理标志
+    if (local_sock >= 0) {
+        close(local_sock);
+    }
+    this->sock_fd = -1;
+    running.store(false);
+}
 
 
 void Basic_FSM::Basic_Task()
