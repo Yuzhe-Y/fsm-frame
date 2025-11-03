@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     
     /*    subscriber    */
     ros::Subscriber mocap_sub = nh.subscribe<geometry_msgs::PoseStamped>
-        ("/vrpn_client_node/drone0/pose", 10, fsm_cb::MocapOdomCallback);
+        ("/vrpn_client_node/UGV7/pose", 10, fsm_cb::MocapOdomCallback);
     ros::Subscriber lidar_sub = nh.subscribe<nav_msgs::Odometry>
         ("odom", 10, fsm_cb::LidarOdomCallback);    
     ros::Subscriber camera_sub = nh.subscribe<nav_msgs::Odometry>

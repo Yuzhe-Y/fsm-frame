@@ -57,6 +57,9 @@ int main(int argc, char **argv)
         // {}
         fsm.Basic_Task();
         fsm.FLAG_Task();
+        // std::cout << "mavros_fcu_pos:" << fsm_cb::mavros_fcu_pos.transpose() <<std::endl;
+        // std::cout << "mavros_fcu_vel:" << fsm_cb::mavros_fcu_vel.transpose() <<std::endl;
+        // std::cout << "mavros_imu_rate:" << fsm_cb::mavros_imu_rate.transpose() <<std::endl;
         rate.sleep();
     }
 
