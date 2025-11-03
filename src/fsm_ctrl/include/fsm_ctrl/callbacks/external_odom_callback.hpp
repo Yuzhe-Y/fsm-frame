@@ -17,11 +17,7 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
-#include <mavros_msgs/RCIn.h>
-#include <mavros_msgs/State.h>
 #include <nav_msgs/Odometry.h>
-#include <sensor_msgs/BatteryState.h>
-#include <sensor_msgs/Imu.h>
 
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 

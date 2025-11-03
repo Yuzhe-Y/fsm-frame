@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-06 20
+ * @LastEditTime: 2025-11-03 10
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/utils/communication_utils/px4_command.hpp
  * @Description: 
  * 
@@ -23,8 +23,9 @@
 #include <mavros_msgs/AttitudeTarget.h>
 
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TwistStamped.h>
 
-#include "fsm_ctrl/callbacks/external_odom_callback.hpp"
+#include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 
 namespace fsm_ut
 {

@@ -214,7 +214,6 @@ void Basic_FSM::Basic_Task()
     last_cmd = cmd; //命令保存
     last_cmd_time = now_cmd_time;
     now_cmd_time = ros::Time::now().toSec() - last_request;
-
     /*--------- Arm ---------*/
     if(cmd == 1)
     {

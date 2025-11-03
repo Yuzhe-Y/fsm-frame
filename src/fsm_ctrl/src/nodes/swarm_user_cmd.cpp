@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-02 11
+ * @LastEditTime: 2025-11-03 11
  * @FilePath: /fsm_ctrl/src/nodes/swarm_user_cmd.cpp
  * @Description: 
  * 
@@ -9,11 +9,8 @@
  */
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Point.h>
-#include <mavros_msgs/CommandBool.h>
-#include <mavros_msgs/SetMode.h>
-#include <mavros_msgs/State.h>
-#include <nav_msgs/Odometry.h>
+#include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -25,10 +22,8 @@
 #include <stdlib.h>
 #include <thread>
 #include <cmath>
-#include <tf/transform_datatypes.h>
 #include <eigen3/Eigen/Dense>
 
-#include "fsm_ctrl/callbacks/external_odom_callback.hpp"
 #include "fsm_ctrl/callbacks/user_cmd_callback.hpp"
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 
@@ -145,8 +140,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "swarm_user_cmd");
     ros::NodeHandle nh;
     
-    ros::Subscriber user_cmd_fcu_sub = nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 1, fsm_cb::UserCmdFcuPoseCallback);
-    ros::Subscriber user_cmd_vio_sub = nh.subscribe<geometry_msgs::PoseStamped>("/user_cmd/vio/pose", 1, fsm_cb::UserCmdVioPoseCallback);
+    ros::Subscriber user_cmd_fcu_sub = nh.subscribe<geometry_msgs::PoseStamped>
+        ("/mavros/local_position/pose", 1, fsm_cb::UserCmdFcuPoseCallback);
+    ros::Subscriber user_cmd_vio_sub = nh.subscribe<geometry_msgs::PoseStamped>
+        ("/mavros/vision_pose/pose", 1, fsm_cb::UserCmdVioPoseCallback);
 
     new thread(&CmdListener);
     new thread(&UdpServer, "127.0.0.1", 12001, 1);

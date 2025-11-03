@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-02 11
+ * @LastEditTime: 2025-11-03 11
  * @FilePath: /fsm_ctrl/src/nodes/px4_estimator.cpp
  * @Description: 
  * 
@@ -89,7 +89,6 @@ int main(int argc, char **argv)
             ekf_msg.data = ekf_ready;
             mavros_ekf_ready_pub.publish(ekf_msg);
         }
-
         rate.sleep();
     }
 

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-02 10
+ * @LastEditTime: 2025-11-03 10
  * @FilePath: /fsm_ctrl/include/fsm_ctrl/nodes/px4_estimator.hpp
  * @Description: 
  * 
@@ -14,8 +14,6 @@
 #include <ros/ros.h>
 #include <eigen3/Eigen/Eigen>
 #include <std_msgs/Bool.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/Range.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>

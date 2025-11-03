@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-06 20
+ * @LastEditTime: 2025-11-03 10
  * @FilePath: /fsm_ctrl/src/utils/communication_utils/px4_command.cpp
  * @Description: 
  * 
@@ -164,8 +164,6 @@ mavros_msgs::AttitudeTarget SetTargetAttAndTotalThrustCmd(double x, double y, do
 geometry_msgs::PoseStamped SetEkfExtPoseData(Eigen::Vector3d pos, Eigen::Quaterniond quat)
 {
     geometry_msgs::PoseStamped msg;
-
-    msg.header.stamp = fsm_cb::ext_odom_stamp;
 
     msg.pose.position.x = pos[0];
     msg.pose.position.y = pos[1];
