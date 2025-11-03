@@ -52,6 +52,7 @@ int main(int argc, char **argv)
     // 主循环
     while (ros::ok())
     {
+        ros::spinOnce();
         // if(fsm.real_environment)
         // {}
         fsm.Basic_Task();
