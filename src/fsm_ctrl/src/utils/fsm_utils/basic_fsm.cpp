@@ -7,6 +7,9 @@ Basic_FSM::Basic_FSM(){}
 
 void Basic_FSM::Basic_Init(ros::NodeHandle &nh, ros::Rate rate)                               
 {
+    is_udp_enable = true;
+    cmd = 0;
+
     /*--------- Normal Publisher ---------*/
     setpoint_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
         ("/mavros/setpoint_position/local", 10);
@@ -258,30 +261,30 @@ void Basic_FSM::Basic_Task()
     /*--------- Arm ---------*/
     if(cmd == 1)
     {
-        // if(mavros_mode != "OFFBOARD")
-        // { 
-        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-        //     {
-        //         ROS_INFO("Attempt to Set OFFBOARD");
-        //         if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
-        //         else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
-        //         mavros_state_monitor_time = ros::Time::now();
-        //     }                
-        // }
-        // else if(mavros_mode == "OFFBOARD" && !arm_mode)
-        // {
-        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-        //     {
-        //         ROS_INFO("Attempt to Arm");
-        //         if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
-        //         else {ROS_ERROR("Fail to Arm!!!");}
-        //         mavros_state_monitor_time = ros::Time::now();
-        //     }
-        // }
-        // else {ROS_WARN("FLAG Fly!");}
+        if(mavros_mode != "OFFBOARD")
+        { 
+            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+            {
+                ROS_INFO("Attempt to Set OFFBOARD");
+                if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
+                else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
+                mavros_state_monitor_time = ros::Time::now();
+            }                
+        }
+        else if(mavros_mode == "OFFBOARD" && !arm_mode)
+        {
+            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+            {
+                ROS_INFO("Attempt to Arm");
+                if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
+                else {ROS_ERROR("Fail to Arm!!!");}
+                mavros_state_monitor_time = ros::Time::now();
+            }
+        }
+        else {ROS_WARN("FLAG Fly!");}
 
-        // mavros_msgs::AttitudeTarget att_cmd = fsm_ut::SetTargetRateAndTotalThrustCmd(0.0, 0.0, 0.0, 0.02);
-        // setpoint_raw_att_pub.publish(att_cmd);
+        mavros_msgs::AttitudeTarget att_cmd = fsm_ut::SetTargetRateAndTotalThrustCmd(0.0, 0.0, 0.0, 0.02);
+        setpoint_raw_att_pub.publish(att_cmd);
     }
 
 
@@ -296,63 +299,65 @@ void Basic_FSM::Basic_Task()
     /*--------- Takeoff ---------*/
     else if(cmd == 3)
     {
-        // if(mavros_mode != "OFFBOARD")
-        // { 
-        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-        //     {
-        //         ROS_INFO("Attempt to Set OFFBOARD");
-        //         if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
-        //         else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
-        //         mavros_state_monitor_time = ros::Time::now();
-        //     }                
-        // }
-        // else if(mavros_mode == "OFFBOARD" && !arm_mode)
-        // {
-        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-        //     {
-        //         ROS_INFO("Attempt to Arm");
-        //         if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
-        //         else {ROS_ERROR("Fail to Arm!!!");}
-        //         mavros_state_monitor_time = ros::Time::now();
-        //     }
-        // }
-        // else {ROS_WARN("FLAG Fly!");}
+        if(mavros_mode != "OFFBOARD")
+        { 
+            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+            {
+                ROS_INFO("Attempt to Set OFFBOARD");
+                if(set_mode_client.call(offboard_mode) && offboard_mode.response.mode_sent) {ROS_WARN("Mode Offboard!");}
+                else {ROS_ERROR("Fail to Set OFFBOARD!!!");}
+                mavros_state_monitor_time = ros::Time::now();
+            }                
+        }
+        else if(mavros_mode == "OFFBOARD" && !arm_mode)
+        {
+            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+            {
+                ROS_INFO("Attempt to Arm");
+                if(arming_cmd_client.call(arm_cmd) && arm_cmd.response.success) {ROS_WARN("Mode Armed!");}
+                else {ROS_ERROR("Fail to Arm!!!");}
+                mavros_state_monitor_time = ros::Time::now();
+            }
+        }
+        else {ROS_WARN("FLAG Fly!");}
 
-        // geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(0.0, 0.0, first_takeoff_height, 0.0);
-        // setpoint_pos_pub.publish(pos_cmd);
+        geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(0.0, 0.0, first_takeoff_height, 0.0);
+        setpoint_pos_pub.publish(pos_cmd);
     }
 
 
     /*--------- Land ---------*/
     else if(cmd == 4)
     {
-        // if(arm_mode && abs(fsm_cb::mavros_fcu_pos.z() - 0.05) < 0.05)
-        // {
-        //     if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
-        //     {
-        //         ROS_INFO("Attempt to Disarm");
-        //         if(arming_cmd_client.call(disarm_cmd) && disarm_cmd.response.success) {ROS_WARN("Mode Disarm!");}
-        //         else {ROS_ERROR("Fail to Disarm!!!");}
-        //         mavros_state_monitor_time = ros::Time::now();
-        //     }
-        // }
+        controller_work_enable = false;
+        if(arm_mode && abs(fsm_cb::mavros_fcu_pos.z() - 0.05) < 0.05)
+        {
+            if(ros::Time::now() - mavros_state_monitor_time > ros::Duration(3.0))
+            {
+                ROS_INFO("Attempt to Disarm");
+                if(arming_cmd_client.call(disarm_cmd) && disarm_cmd.response.success) {ROS_WARN("Mode Disarm!");}
+                else {ROS_ERROR("Fail to Disarm!!!");}
+                mavros_state_monitor_time = ros::Time::now();
+            }
+        }
         
-        // if(!is_landing_in_progress)
-        // {
-        //     landing_start_pos = Eigen::Vector3d(fsm_cb::mavros_fcu_pos.x(), fsm_cb::mavros_fcu_pos.y(), fsm_cb::mavros_fcu_pos.z());
-        //     is_landing_in_progress = true;
-        // }
-        // if(landing_start_pos.z() > 0.05) {landing_start_pos.z() -= 0.01;}
-        // else {landing_start_pos.z() = 0.05;}
+        if(!is_landing_in_progress)
+        {
+            landing_start_pos = Eigen::Vector3d(fsm_cb::mavros_fcu_pos.x(), fsm_cb::mavros_fcu_pos.y(), fsm_cb::mavros_fcu_pos.z());
+            is_landing_in_progress = true;
+        }
+        if(landing_start_pos.z() > 0.05) {landing_start_pos.z() -= 0.01;}
+        else {landing_start_pos.z() = 0.05;}
 
-        // geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(landing_start_pos.x(), landing_start_pos.y(), landing_start_pos.z(), 0.0);
-        // setpoint_pos_pub.publish(pos_cmd);
+        geometry_msgs::PoseStamped pos_cmd = fsm_ut::SetPositionAndYawCmd(landing_start_pos.x(), landing_start_pos.y(), landing_start_pos.z(), 0.0);
+        setpoint_pos_pub.publish(pos_cmd);
     }
 
 
     /*--------- Safety ---------*/
     else if(cmd == 5)
     {
+        controller_work_enable = false;
         mavros_msgs::AttitudeTarget att_cmd = fsm_ut::SetTargetRateAndTotalThrustCmd(0.0, 0.0, 0.0, hover_thrust_percentage - 0.05);
         setpoint_raw_att_pub.publish(att_cmd);
     }

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-03 11
+ * @LastEditTime: 2025-11-03 20
  * @FilePath: /fsm_ctrl/src/nodes/single_offboard_fsm.cpp
  * @Description: 
  * 
@@ -57,9 +57,6 @@ int main(int argc, char **argv)
         // {}
         fsm.Basic_Task();
         fsm.FLAG_Task();
-        // std::cout << "mavros_fcu_pos:" << fsm_cb::mavros_fcu_pos.transpose() <<std::endl;
-        // std::cout << "mavros_fcu_vel:" << fsm_cb::mavros_fcu_vel.transpose() <<std::endl;
-        // std::cout << "mavros_imu_rate:" << fsm_cb::mavros_imu_rate.transpose() <<std::endl;
         rate.sleep();
     }
 
@@ -74,7 +71,16 @@ void fsm_ut::FLAG_FSM::FLAG_Task()
 {
     if(cmd == 6)
     {  
-        
+        controller_work_enable = true;
+        controller.position_ref.clear();
+        controller.velocity_ref.clear();
+        controller.attitude_ref.clear();
+        for(int i = 0; i < const_params::W_TOTALF_PARAMS.N; i++)
+        {
+            controller.position_ref.push_back(Eigen::Vector3d(0.0, 0.0, 1.0));
+            controller.velocity_ref.push_back(Eigen::Vector3d(0.0, 0.0, 0.0));
+            controller.attitude_ref.push_back(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0));
+        }
     }
     
 
