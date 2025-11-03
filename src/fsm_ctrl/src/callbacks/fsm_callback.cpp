@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-02 11
+ * @LastEditTime: 2025-11-03 17
  * @FilePath: /fsm_ctrl/src/callbacks/fsm_callback.cpp
  * @Description: 
  * 
@@ -60,10 +60,8 @@ namespace fsm_cb
      */
     void MavrosFcuPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
     {
-        ROS_INFO("get data!");
         mavros_fcu_pos = Eigen::Vector3d(msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
         mavros_fcu_quat = Eigen::Quaterniond(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
-        std::cout << "mavros_fcu_pos:" << fsm_cb::mavros_fcu_pos.transpose() <<std::endl;
 
         if(!is_quat_init)
         {
@@ -83,7 +81,6 @@ namespace fsm_cb
         }
 
         mavros_fcu_euler = fsm_ut::QuatToEuler(mavros_fcu_quat);
-        std::cout << "pose:" << mavros_fcu_pos.x() << std::endl;
     }
 
     /**

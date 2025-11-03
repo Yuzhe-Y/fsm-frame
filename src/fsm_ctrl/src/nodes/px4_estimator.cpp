@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-03 11
+ * @LastEditTime: 2025-11-03 17
  * @FilePath: /fsm_ctrl/src/nodes/px4_estimator.cpp
  * @Description: 
  * 
@@ -50,7 +50,10 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         geometry_msgs::PoseStamped mavros_ext_odom_msg;
-
+        
+        mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
+        // std::cout << "mocap_pos: " << fsm_cb::mocap_pos.transpose() << std::endl;
+        mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
         if(fsm_cb::is_source_new)
         {
             if(mavros_ext_odom_source == 0) // mocap
