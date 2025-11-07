@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-30 11
+ * @LastEditTime: 2025-11-07 14
  * @FilePath: /fsm_ctrl/src/callbacks/timer_callback.cpp
  * @Description: 
  * 
@@ -198,14 +198,24 @@ namespace fsm_cb
             ocp_nlp_out_get(fsm.acados_simple_controller.nlp_config, fsm.acados_simple_controller.nlp_dims, fsm.acados_simple_controller.nlp_out, 0, "kkt_norm_inf", &fsm.acados_simple_controller.kkt_norm_inf);
             ocp_nlp_get(fsm.acados_simple_controller.nlp_solver, "sqp_iter", &fsm.acados_simple_controller.sqp_iter);
 
+            if (fsm.acados_simple_controller.status != ACADOS_SUCCESS)
+            {
+                printf("w_totalF_nmpc_acados_solve() failed with status %d.\n", fsm.acados_simple_controller.status);
+            }
+            
             double thrust_percentage_command = fsm.acados_simple_controller.thr_est.LinearThrEst(fsm.acados_simple_controller.utraj[0]);
             Eigen::Vector3d w_command;
             w_command.x() = fsm.acados_simple_controller.utraj[1];
             w_command.y() = fsm.acados_simple_controller.utraj[2];
             w_command.z() = fsm.acados_simple_controller.utraj[3];
+            std::cout << "w_command: " << w_command.transpose() << ", thrust_percentage_command: " << thrust_percentage_command << ", cal time: " << fsm.acados_simple_controller.min_time << std::endl;
 
             mavros_msgs::AttitudeTarget att_tgt = fsm_ut::SetTargetRateAndTotalThrustCmd(w_command.x(), w_command.y(), w_command.z(), thrust_percentage_command);
             fsm.setpoint_raw_att_pub.publish(att_tgt);
+            // if (!fsm.setpoint_raw_att_pub.getTopic().empty())
+            //     fsm.setpoint_raw_att_pub.publish(att_tgt);
+            // else
+            //     ROS_WARN_THROTTLE(5.0, "setpoint_raw_att_pub not initialized yet");
 
             fsm_ctrl::nmpc_simple_model_msgs nmpc_state_msgs;
             nmpc_state_msgs.header.stamp = ros::Time::now();
@@ -215,7 +225,7 @@ namespace fsm_cb
             nmpc_state_msgs.body_rate_cmd.z = w_command.z();
             nmpc_state_msgs.thrust_cmd = thrust_percentage_command;
 
-            fsm.nmpc_state_pub.publish(nmpc_state_msgs);
+            // fsm.nmpc_state_pub.publish(nmpc_state_msgs);
         }
         else
         {

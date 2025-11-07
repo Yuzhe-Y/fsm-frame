@@ -36,6 +36,16 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh, ros::Rate rate)
     mavros_rc_sub = nh.subscribe<mavros_msgs::RCIn>
         ("/mavros/rc/in", 10, fsm_cb::MavrosRcCallback);
 
+    // 确保 publisher 已向 master 注册（短暂让出时间）
+    ros::spinOnce();
+    ros::WallDuration(0.05).sleep();
+
+    // 打印用于调试（可临时开启）
+    ROS_INFO("Publisher topics: pos(%s) raw_att(%s) nmpc_state(%s)",
+             setpoint_pos_pub.getTopic().c_str(),
+             setpoint_raw_att_pub.getTopic().c_str(),
+             nmpc_state_pub.getTopic().c_str());
+
     /*--------- Timer&&Controller_utils&&Controller Publisher ---------*/
     nh.param("/single_offboard_fsm/controller_basic_params/use_defalut_controller", controller.use_defalut_controller, true);
     nh.param("/single_offboard_fsm/controller_basic_params/defalut_controller_type", controller.defalut_controller_type, 0);
@@ -55,7 +65,7 @@ void Basic_FSM::Basic_Init(ros::NodeHandle &nh, ros::Rate rate)
                 nh.param("/single_offboard_fsm/acados_parameters/ctrl_rate", ctrl_rate, 50.0);
                 ctrl_duration = 1.0 / ctrl_rate;
                 fsm_ut::AcadosNmpcWandTotalFControllerInit(nh, acados_simple_controller, ctrl_rate);
-                controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::IpoptNmpcWandTotalFTimerCallback);
+                controller_timer = nh.createTimer(ros::Duration(ctrl_duration), fsm_cb::AcadosNmpcSimpleModelTimerCallback);
             }
             else if(controller.nmpc_controller_type == 1) // Force
             {
