@@ -1,7 +1,7 @@
 {
-    "acados_include_path": "/home/hydrogen/acados/include",
-    "acados_lib_path": "/home/hydrogen/acados/lib",
-    "code_export_directory": "/home/hydrogen/fsm-frame/src/fsm_ctrl/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code",
+    "acados_include_path": "/home/yuzhe-yang/NewDisk/acados/include",
+    "acados_lib_path": "/home/yuzhe-yang/NewDisk/acados/lib",
+    "code_export_directory": "/home/yuzhe-yang/NewDisk/fsm_frame_ws/src/fsm_ctrl/src/controllers/acados_controller/nmpc_simple_model_generated_code/nmpc_simple_model_generated_code",
     "constraints": {
         "C": [],
         "C_e": [],
@@ -702,7 +702,7 @@
         "zu_e": []
     },
     "cython_include_dirs": [
-        "/home/hydrogen/env/lib/python3.8/site-packages/numpy/core/include",
+        "/home/yuzhe-yang/NewDisk/acadosenv/lib/python3.8/site-packages/numpy/core/include",
         "/usr/include/python3.8"
     ],
     "dims": {

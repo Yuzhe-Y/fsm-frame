@@ -260,6 +260,21 @@ class AcadosMPCSolver:
         # weight matrix at terminal shooting node (N)
         self.solver.cost_set(self.N, 'W', self.mpc_params.Qe)
 
+    def update_cost_parameters(self, Q: np.ndarray, R: np.ndarray, Qe: np.ndarray) -> None:
+        """
+        Update the cost parameters.
+
+        :param Q (np.ndarray): State weight matrix.
+        :param R (np.ndarray): Control weight matrix.
+        :param Qe (np.ndarray): Terminal state weight matrix.
+        """
+        # weight matrix at intermediate shooting nodes (1 to N-1)
+        for node in range(0, self.N):
+            self.solver.cost_set(node, 'W', scipy.linalg.block_diag(Q, R))
+
+        # weight matrix at terminal shooting node (N)
+        self.solver.cost_set(self.N, 'W', Qe)
+
     def export_integrador(self, simulation_time) -> AcadosSimSolver:
         """Export integrator for simulation."""
         # Acados Sim
@@ -534,18 +549,52 @@ if __name__ == '__main__':
     reference_final = np.zeros(mpc.x_dim)
     
     # 设置位置参考为 [0, 0, 1]
-    reference_intermediate[:, :3] = np.array([0.0, 0.0, 1.0])         # Position reference
+    reference_intermediate[:, :3] = np.array([1.0, 0.0, 1.0])         # Position reference
     reference_intermediate[:, 3:6] = np.array([0.0, 0.0, 0.0])       # Linear velocity reference
     reference_intermediate[:, 6:10] = np.array([1.0, 0.0, 0.0, 0.0]) # Orientation reference
     reference_intermediate[:, 10:13] = np.array([0.0, 0.0, 0.0])     # Angular velocity reference
     reference_intermediate[:, 13:] = np.array([2.450375, 2.450375, 2.450375, 2.450375])     # Force reference
     
-    reference_final[:3] = np.array([0.0, 0.0, 1.0])                  # Position reference
+    reference_final[:3] = np.array([1.0, 0.0, 1.0])                  # Position reference
     reference_final[3:6] = np.array([0.0, 0.0, 0.0])                 # Linear velocity reference
     reference_final[6:10] = np.array([1.0, 0.0, 0.0, 0.0])           # Orientation reference
     reference_final[10:13] = np.array([0.0, 0.0, 0.0])               # Angular velocity reference
 
     start_time = time.time()
+
+    u, opt_x = mpc.evaluate(
+        state,
+        reference_intermediate,
+        reference_final
+    )
+
+    # 打印结果和执行时间
+    if u is not None:
+        print("Computed control actions:")
+        # print(f"First control action u0: {u[0]}")
+        print(f"Motor thrusts [f0, f1, f2, f3]: {u}")
+        # print(f"opt_x: {opt_x}")
+        # print(f"All control actions shape: {u.shape}")
+    else:
+        print("Failed to compute control actions")
+
+    mpc.update_cost_parameters(
+        Q=CaState.get_cost_matrix(
+            position_weight=100*np.ones(3),
+            linear_velocity_weight=1.0*np.ones(3),
+            orientation_weight=8.0*np.ones(3),
+            angular_velocity_weight=1.0*np.ones(3)
+        ),
+        R=CaControl.get_cost_matrix(
+            motor_thrust_weight=0.0*np.ones(4)
+        ),
+        Qe=CaState.get_cost_matrix(
+            position_weight=100*np.ones(3),
+            linear_velocity_weight=1.0*np.ones(3),
+            orientation_weight=8.0*np.ones(3),
+            angular_velocity_weight=1.0*np.ones(3)
+        )
+    )
 
     u, opt_x = mpc.evaluate(
         state,
@@ -563,8 +612,8 @@ if __name__ == '__main__':
         print("Computed control actions:")
         # print(f"First control action u0: {u[0]}")
         print(f"Motor thrusts [f0, f1, f2, f3]: {u}")
-        print(f"opt_x: {opt_x}")
-        print(f"All control actions shape: {u.shape}")
+        # print(f"opt_x: {opt_x}")
+        # print(f"All control actions shape: {u.shape}")
     else:
         print("Failed to compute control actions")
     print(f"Execution time: {execution_time_ms:.2f} ms")

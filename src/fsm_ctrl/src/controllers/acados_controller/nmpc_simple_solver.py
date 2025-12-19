@@ -492,11 +492,11 @@ if __name__ == '__main__':
     reference_final = np.zeros(mpc.x_dim)
     
     # 设置位置参考为 [0, 0, 1]
-    reference_intermediate[:, :3] = np.array([0.0, 0.0, 1.0])      # Position reference
+    reference_intermediate[:, :3] = np.array([1.0, 0.0, 0.0])      # Position reference
     reference_intermediate[:, 3:6] = np.array([0.0, 0.0, 0.0])    # Linear velocity reference
     reference_intermediate[:, 6:10] = np.array([1.0, 0.0, 0.0, 0.0])  # Orientation reference
     
-    reference_final[:3] = np.array([0.0, 0.0, 1.0])               # Position reference
+    reference_final[:3] = np.array([1.0, 0.0, 0.0])               # Position reference
     reference_final[3:6] = np.array([0.0, 0.0, 0.0])              # Linear velocity reference
     reference_final[6:10] = np.array([1.0, 0.0, 0.0, 0.0])        # Orientation reference
 

@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-11-03 17
+ * @LastEditTime: 2025-11-20 14
  * @FilePath: /fsm_ctrl/src/nodes/px4_estimator.cpp
  * @Description: 
  * 
@@ -50,8 +50,17 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         geometry_msgs::PoseStamped mavros_ext_odom_msg;
-        
-        mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
+
+        mavros_ext_odom_msg.pose.position.x = 0.0;
+        mavros_ext_odom_msg.pose.position.y = 0.0;
+        mavros_ext_odom_msg.pose.position.z = 0.0;
+
+        mavros_ext_odom_msg.pose.orientation.x = 0.0;
+        mavros_ext_odom_msg.pose.orientation.y = 0.0;
+        mavros_ext_odom_msg.pose.orientation.z = 0.0;
+        mavros_ext_odom_msg.pose.orientation.w = 1.0;
+
+        // mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
         // std::cout << "mocap_pos: " << fsm_cb::mocap_pos.transpose() << std::endl;
         mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
         if(fsm_cb::is_source_new)
@@ -76,6 +85,7 @@ int main(int argc, char **argv)
             mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
             fsm_cb::is_source_new = false;
         }
+
 
         Eigen::Quaterniond mavros_ext_odom_vision_quat = Eigen::Quaterniond(mavros_ext_odom_msg.pose.orientation.w, 
                                                                             mavros_ext_odom_msg.pose.orientation.x, 

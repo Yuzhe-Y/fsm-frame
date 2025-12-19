@@ -1,7 +1,7 @@
 /*
  * @Author: yuzhe-yang chn.yuzhe.yang@gmail.com
  * @LastEditors: yuzhe-yang chn.yuzhe.yang@gmail.com
- * @LastEditTime: 2025-10-30 11
+ * @LastEditTime: 2025-12-02 10
  * @FilePath: /fsm_ctrl/src/utils/controller_utils/controller_utils.cpp
  * @Description: 
  * 
@@ -206,6 +206,7 @@ void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleControl
         // initialize solution
         double* yref_0 = static_cast<double*>(calloc(const_params::W_TOTALF_PARAMS.NY0, sizeof(double)));
         // change only the non-zero elements:
+        yref_0[0] = 1.0;
         yref_0[2] = 1.0;
         yref_0[9] = 9.8015;
         ocp_nlp_cost_model_set(acados_controller.nlp_config, acados_controller.nlp_dims, acados_controller.nlp_in, 0, "yref", yref_0);
@@ -230,6 +231,7 @@ void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleControl
 
         double* yref = static_cast<double*>(calloc(const_params::W_TOTALF_PARAMS.NY, sizeof(double)));
         // change only the non-zero elements:
+        yref[0] = 1.0;
         yref[2] = 1.0;
         yref[9] = 9.8015;
 
@@ -259,6 +261,7 @@ void AcadosNmpcWandTotalFControllerInit(ros::NodeHandle& nh, AcadosSimpleControl
 
         double* yref_e = static_cast<double*>(calloc(const_params::W_TOTALF_PARAMS.NYN, sizeof(double)));
         // change only the non-zero elements:
+        yref_e[0] = 1.0;
         yref_e[2] = 1.0;
         ocp_nlp_cost_model_set(acados_controller.nlp_config, acados_controller.nlp_dims, acados_controller.nlp_in, acados_controller.N, "yref", yref_e);
         free(yref_e);
