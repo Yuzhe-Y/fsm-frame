@@ -23,10 +23,10 @@ int main(int argc, char **argv)
     bool ekf_ready = false;
 
     /*    parameter    */
-    nh.param("mocap_frame", fsm_cb::mocap_frame, 0);
-    nh.param("mavros_ext_odom_source", mavros_ext_odom_source, 0);
-    nh.param("mavros_ekf_pos_error_max", mavros_ekf_pos_error_max, 0.1);
-    nh.param("mavros_ekf_yaw_error_max", mavros_ekf_yaw_error_max, 10.0);
+    nh.param("/comm_node/mocap_frame", fsm_cb::mocap_frame, 0);
+    nh.param("/comm_node/mavros_ext_odom_source", mavros_ext_odom_source, 0);
+    nh.param("/comm_node/mavros_ekf_pos_error_max", mavros_ekf_pos_error_max, 0.1);
+    nh.param("/comm_node/mavros_ekf_yaw_error_max", mavros_ekf_yaw_error_max, 10.0);
 
     /*    publisher    */
     ros::Publisher mavros_ext_odom_pub = nh.advertise<geometry_msgs::PoseStamped>
@@ -38,9 +38,9 @@ int main(int argc, char **argv)
     ros::Subscriber mocap_sub = nh.subscribe<geometry_msgs::PoseStamped>
         ("/vrpn_client_node/UGV7/pose", 10, fsm_cb::MocapOdomCallback);
     ros::Subscriber lidar_sub = nh.subscribe<nav_msgs::Odometry>
-        ("odom", 10, fsm_cb::LidarOdomCallback);    
+        ("/Odometry", 10, fsm_cb::LidarOdomCallback);    
     ros::Subscriber camera_sub = nh.subscribe<nav_msgs::Odometry>
-        ("odom", 10, fsm_cb::CameraOdomCallback);
+        ("/Odometry", 10, fsm_cb::CameraOdomCallback);
     ros::Subscriber ext_fcu_sub = nh.subscribe<geometry_msgs::PoseStamped>
         ("/mavros/local_position/pose", 10, fsm_cb::ExtFcuPoseCallback);
     
@@ -51,18 +51,18 @@ int main(int argc, char **argv)
 
         geometry_msgs::PoseStamped mavros_ext_odom_msg;
 
-        mavros_ext_odom_msg.pose.position.x = 0.0;
-        mavros_ext_odom_msg.pose.position.y = 0.0;
-        mavros_ext_odom_msg.pose.position.z = 0.0;
+        // mavros_ext_odom_msg.pose.position.x = 0.0;
+        // mavros_ext_odom_msg.pose.position.y = 0.0;
+        // mavros_ext_odom_msg.pose.position.z = 0.0;
 
-        mavros_ext_odom_msg.pose.orientation.x = 0.0;
-        mavros_ext_odom_msg.pose.orientation.y = 0.0;
-        mavros_ext_odom_msg.pose.orientation.z = 0.0;
-        mavros_ext_odom_msg.pose.orientation.w = 1.0;
+        // mavros_ext_odom_msg.pose.orientation.x = 0.0;
+        // mavros_ext_odom_msg.pose.orientation.y = 0.0;
+        // mavros_ext_odom_msg.pose.orientation.z = 0.0;
+        // mavros_ext_odom_msg.pose.orientation.w = 1.0;
 
         // mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::mocap_pos, fsm_cb::mocap_quat);
         // std::cout << "mocap_pos: " << fsm_cb::mocap_pos.transpose() << std::endl;
-        mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
+        // mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
         if(fsm_cb::is_source_new)
         {
             if(mavros_ext_odom_source == 0) // mocap
@@ -82,6 +82,8 @@ int main(int argc, char **argv)
                 ROS_ERROR("Invalid mavros_ext_odom_source: %d", mavros_ext_odom_source);
                 continue;
             }
+            mavros_ext_odom_msg.header.stamp = ros::Time::now();
+            mavros_ext_odom_msg.header.frame_id = "map";
             mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
             fsm_cb::is_source_new = false;
         }
