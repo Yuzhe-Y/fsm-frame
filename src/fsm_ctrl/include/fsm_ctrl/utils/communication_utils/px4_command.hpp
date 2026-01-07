@@ -25,6 +25,8 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 
+#include <nav_msgs/Odometry.h>
+
 #include "fsm_ctrl/utils/math_utils/math_utils.hpp"
 
 namespace fsm_ut
@@ -36,6 +38,7 @@ namespace fsm_ut
     mavros_msgs::AttitudeTarget SetTargetRateAndTotalThrustCmd(double x_rate, double y_rate, double z_rate, double total_thrust);
     mavros_msgs::AttitudeTarget SetTargetAttAndTotalThrustCmd(double x, double y, double z, double w, double total_thrust);
     geometry_msgs::PoseStamped SetEkfExtPoseData(Eigen::Vector3d pos, Eigen::Quaterniond quat);
+    nav_msgs::Odometry SetEkfExtPoseVelData(Eigen::Vector3d pos, Eigen::Vector3d vel, Eigen::Quaterniond quat);
     
     void InitPX4(mavros_msgs::SetMode& offboard_mode,
                  mavros_msgs::SetMode& land_mode,

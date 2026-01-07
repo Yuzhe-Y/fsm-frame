@@ -177,6 +177,27 @@ geometry_msgs::PoseStamped SetEkfExtPoseData(Eigen::Vector3d pos, Eigen::Quatern
     return msg;
 }
 
+nav_msgs::Odometry SetEkfExtPoseVelData(Eigen::Vector3d pos, Eigen::Vector3d vel, Eigen::Quaterniond quat)
+{
+    nav_msgs::Odometry msg;
+
+    msg.pose.pose.position.x = pos[0];
+    msg.pose.pose.position.y = pos[1];
+    msg.pose.pose.position.z = pos[2];
+
+    msg.pose.pose.orientation.x = quat.x();
+    msg.pose.pose.orientation.y = quat.y();
+    msg.pose.pose.orientation.z = quat.z();
+    msg.pose.pose.orientation.w = quat.w();
+
+    msg.twist.twist.linear.x = vel[0];
+    msg.twist.twist.linear.y = vel[1];
+    msg.twist.twist.linear.z = vel[2];
+    // std::cout << "Hello!" << std::endl;
+
+    return msg;
+}
+
 /**
  * @description: Initialize PX4, build communication
  * @param {mavros_msgs::SetMode&} offboard_mode

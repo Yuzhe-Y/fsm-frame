@@ -31,6 +31,8 @@ int main(int argc, char **argv)
     /*    publisher    */
     ros::Publisher mavros_ext_odom_pub = nh.advertise<geometry_msgs::PoseStamped>
         ("/mavros/vision_pose/pose", 10);
+    ros::Publisher mavros_ext_odom_pose_vel_pub = nh.advertise<nav_msgs::Odometry>
+        ("/mavros/odometry/out", 10);
     ros::Publisher mavros_ekf_ready_pub = nh.advertise<std_msgs::Bool>
         ("/mavros/ekf_ready", 10);
     
@@ -50,6 +52,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         geometry_msgs::PoseStamped mavros_ext_odom_msg;
+        nav_msgs::Odometry mavros_ext_odom_pose_vel_msg;
 
         // mavros_ext_odom_msg.pose.position.x = 0.0;
         // mavros_ext_odom_msg.pose.position.y = 0.0;
@@ -72,6 +75,7 @@ int main(int argc, char **argv)
             else if(mavros_ext_odom_source == 1) // lidar
             {
                 mavros_ext_odom_msg = fsm_ut::SetEkfExtPoseData(fsm_cb::lidar_pos, fsm_cb::lidar_quat);
+                mavros_ext_odom_pose_vel_msg = fsm_ut::SetEkfExtPoseVelData(fsm_cb::lidar_pos, fsm_cb::lidar_vel, fsm_cb::lidar_quat);
             }
             else if(mavros_ext_odom_source == 2) // camera
             {
@@ -83,7 +87,11 @@ int main(int argc, char **argv)
                 continue;
             }
             mavros_ext_odom_msg.header.stamp = ros::Time::now();
-            mavros_ext_odom_msg.header.frame_id = "map";
+            mavros_ext_odom_msg.header.frame_id = "odom";
+            mavros_ext_odom_pose_vel_msg.header.stamp = ros::Time::now();
+            mavros_ext_odom_pose_vel_msg.header.frame_id = "odom";
+            mavros_ext_odom_pose_vel_msg.child_frame_id = "base_link";
+            // mavros_ext_odom_pose_vel_pub.publish(mavros_ext_odom_pose_vel_msg);
             mavros_ext_odom_pub.publish(mavros_ext_odom_msg);
             fsm_cb::is_source_new = false;
         }
